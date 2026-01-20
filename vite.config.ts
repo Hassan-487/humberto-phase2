@@ -5,15 +5,19 @@ import path from "path";
 export default defineConfig({
   server: {
     host: "::",
-    port: 8080,
+    port: 8081,
     hmr: {
       overlay: false,
     },
     proxy: {
       "/api": {
-        target: "http://192.168.18.15:4000",
+        // target: "http://192.168.18.15:4000",
+        target:"https://7b0183812b7c.ngrok-free.app/",
         changeOrigin: true,
         secure: false,
+         headers: {
+      "ngrok-skip-browser-warning": "true",
+    },
       },
     },
   },

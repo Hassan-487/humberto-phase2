@@ -1,18 +1,36 @@
-// @/lib/google-loader.ts
-export const loadGoogleMaps = () => {
-  const existingScript = document.getElementById('google-maps-script');
-  if (existingScript) return;
+let isLoading = false;
+let isLoaded = false;
 
-  const script = document.createElement('script');
-  script.id = 'google-maps-script';
-  // Note the loading=async parameter added here
-  script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDdoEK5Fkuee0WnosCH5PoUspKrLDkFqIk&libraries=places&loading=async&callback=initMap`;
-  script.async = true;
-  script.defer = true;
-  document.head.appendChild(script);
+export function loadGoogleMaps(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (isLoaded) return resolve();
 
-  // Define a dummy callback to satisfy the API
-  (window as any).initMap = () => {
-    console.log("Google Maps Initialized");
-  };
-};
+    if (isLoading) {
+      const interval = setInterval(() => {
+        if (isLoaded) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 50);
+      return;
+    }
+
+    isLoading = true;
+
+    const script = document.createElement("script");
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${
+      import.meta.env.VITE_GOOGLE_MAPS_KEY
+    }&libraries=places`;
+    script.async = true;
+    script.defer = true;
+
+    script.onload = () => {
+      isLoaded = true;
+      resolve();
+    };
+
+    script.onerror = reject;
+
+    document.head.appendChild(script);
+  });
+}

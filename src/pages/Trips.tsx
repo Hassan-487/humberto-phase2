@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useTrips, useDeleteTrip } from "@/hooks/useTrips"; 
 import { CreateTripDialog } from "@/components/CreateTripDialog";
 import { UpdateTripDialog } from "@/components/UpdateTripDialog";
-import { TripMap } from "@/components/TripMap";
+// import { TripMap } from "@/components/TripMap";
 import { PermissionGuard } from "@/components/PermissionGuard";
 
 
@@ -138,7 +138,7 @@ export default function Trips() {
                 {selectedTrip.currentLocation ? (
                   <div className="space-y-2">
                    {/* Inside selectedTrip logic */}
-                    <TripMap origin={selectedTrip.originLocation} destination={selectedTrip.destinationLocation} current={selectedTrip.currentLocation} />
+                    {/* <TripMap origin={selectedTrip.originLocation} destination={selectedTrip.destinationLocation} current={selectedTrip.currentLocation} /> */}
                     <div className="p-3 bg-muted/20 border rounded-lg flex items-start gap-3">
                       <Info className="h-4 w-4 text-primary mt-0.5" />
                       <p className="text-xs text-muted-foreground leading-relaxed font-medium">
