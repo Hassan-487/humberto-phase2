@@ -12,15 +12,27 @@ import { DriverProfileSheet } from "@/components/DriverDetailSheet";
 import { PermissionGuard } from "@/components/PermissionGuard";
 
 const getStatusBadgeClass = (status: string) => {
-  switch (status?.toLowerCase()) {
-    case "active":
-    case "available": return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
-    case "on_leave":
-    case "on_break": return "bg-amber-500/10 text-amber-600 border-amber-200";
-    case "inactive": return "bg-slate-100 text-slate-600 border-slate-200";
-    default: return "bg-slate-100 text-slate-600 border-slate-200";
+  switch (status) {
+    case "idle":
+      return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
+
+    case "assigned":
+      return "bg-blue-500/10 text-blue-600 border-blue-200";
+
+    case "in_transit":
+      return "bg-purple-500/10 text-purple-600 border-purple-200";
+
+    case "complete":
+      return "bg-teal-500/10 text-teal-600 border-teal-200";
+
+    case "inactive":
+      return "bg-slate-200 text-slate-600 border-slate-300";
+
+    default:
+      return "bg-slate-100 text-slate-600 border-slate-200";
   }
 };
+
 
 export default function Drivers() {
   const { drivers, loading, deleteDriver } = useDrivers();
@@ -82,8 +94,8 @@ export default function Drivers() {
                   ) : <span className="text-xs text-muted-foreground italic">Unassigned</span>}
                 </td>
                 <td className="p-4">
-                  <Badge variant="outline" className={`capitalize px-2.5 py-0.5 rounded-full ${getStatusBadgeClass(driver.employmentStatus)}`}>
-                    {driver.employmentStatus?.replace('_', ' ')}
+                  <Badge variant="outline" className={`capitalize px-2.5 py-0.5 rounded-full ${getStatusBadgeClass(driver.status)}`}>
+                    {driver.status.replace("_", " ")}
                   </Badge>
                 </td>
                 <td className="p-4">

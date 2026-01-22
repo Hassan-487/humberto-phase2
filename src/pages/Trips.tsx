@@ -14,6 +14,7 @@ import { CreateTripDialog } from "@/components/CreateTripDialog";
 import { UpdateTripDialog } from "@/components/UpdateTripDialog";
 // import { TripMap } from "@/components/TripMap";
 import { PermissionGuard } from "@/components/PermissionGuard";
+import { LiveTripMap } from "@/components/LiveTripMap";
 
 
 const getStatusBadgeStyles = (status: string) => {
@@ -124,30 +125,31 @@ export default function Trips() {
             <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-none">
               
               {/* 1. GPS TRACKING SECTION */}
-              <section className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <Label className="font-bold flex items-center gap-2 text-primary uppercase text-[10px] tracking-widest">
-                    <MapPin className="h-4 w-4" /> Live Tracking
-                  </Label>
-                  {selectedTrip.aiMovementDetected && (
-                    <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 border-none text-[9px] font-bold animate-pulse">
-                      MOVING NOW
-                    </Badge>
-                  )}
-                </div>
-                {selectedTrip.currentLocation ? (
-                  <div className="space-y-2">
-                   {/* Inside selectedTrip logic */}
-                    {/* <TripMap origin={selectedTrip.originLocation} destination={selectedTrip.destinationLocation} current={selectedTrip.currentLocation} /> */}
-                    <div className="p-3 bg-muted/20 border rounded-lg flex items-start gap-3">
-                      <Info className="h-4 w-4 text-primary mt-0.5" />
-                      <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                        {selectedTrip.currentLocation.address}
-                      </p>
-                    </div>
-                  </div>
-                ) : <div className="h-40 bg-muted rounded flex items-center justify-center text-xs">Awaiting GPS signal...</div>}
-              </section>
+<section className="space-y-4">
+  <Label className="font-bold flex items-center gap-2 text-primary uppercase text-[10px] tracking-widest">
+    <MapPin className="h-4 w-4" /> Live Tracking
+  </Label>
+
+  <div className="h-64 w-full relative">
+  {selectedTrip.currentLocation?.latitude !== undefined &&
+   selectedTrip.currentLocation?.longitude !== undefined &&
+   selectedTrip.destinationLocation?.latitude !== undefined &&
+   selectedTrip.destinationLocation?.longitude !== undefined ? (
+    <LiveTripMap
+      key={selectedTrip._id}
+      current={selectedTrip.currentLocation}
+      destination={selectedTrip.destinationLocation}
+    />
+  ) : (
+    <div className="h-full w-full bg-muted rounded-lg flex items-center justify-center">
+      <p className="text-xs text-muted-foreground">
+        Awaiting coordinates...
+      </p>
+    </div>
+  )}
+</div>
+
+</section>
 
              {/* 2. DRIVING ANALYTICS */}
 <section className="space-y-4">

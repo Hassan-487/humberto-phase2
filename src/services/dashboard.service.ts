@@ -1,8 +1,4 @@
-import apiClient from './apiClient';
-import { DASHBOARD_API } from '@/api/dashboard.api';
-import { kpiData, alerts as mockAlerts, activeTrips as mockActiveTrips } from '@/data/demoData';
-
-// Types
+// Types stay SAME as your UI expects
 export interface KPIData {
   totalTrucks: number;
   activeTrips: number;
@@ -31,79 +27,50 @@ export interface DashboardTrip {
   eta: string;
 }
 
-// Dashboard Service
+const getStoredDashboard = () => {
+  const raw = localStorage.getItem("dashboard");
+  if (!raw) throw new Error("Dashboard not found");
+  return JSON.parse(raw);
+};
+
 export const dashboardService = {
-  /**
-   * Get KPI data
-   */
   async getKPIData(): Promise<KPIData> {
-    // TODO: Replace with real API when backend is ready
-    // PENDING BACKEND - Currently using mock data
-    
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return kpiData;
-    
-    // When backend is ready, use this:
-    // const response = await apiClient.get<KPIData>(DASHBOARD_API.KPI);
-    // return response.data;
+    const dashboard = getStoredDashboard();
+
+    return {
+      totalTrucks: dashboard.summary.trucks.total,
+      activeTrips: dashboard.summary.trips.active,
+      driversOnDuty: dashboard.summary.drivers.available,
+      criticalAlerts: dashboard.alerts.criticalCount,
+    };
   },
 
-  /**
-   * Get recent alerts for dashboard
-   */
-  async getRecentAlerts(limit: number = 5): Promise<DashboardAlert[]> {
-    // TODO: Replace with real API when backend is ready
-    // PENDING BACKEND - Currently using mock data
-    
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return mockAlerts.slice(0, limit).map(alert => ({
-      id: alert.id,
-      type: alert.type,
-      severity: alert.severity as DashboardAlert['severity'],
+  async getRecentAlerts(limit = 5): Promise<DashboardAlert[]> {
+    const dashboard = getStoredDashboard();
+
+    return dashboard.alerts.critical.slice(0, limit).map((alert: any, index: number) => ({
+      id: index,
+      type: alert.severity === 'critical' ? 'Critical' : 'Warning',
+      severity: 'High',
       message: alert.message,
-      timestamp: alert.timestamp,
-      truck: alert.truck,
-      driver: alert.driver,
+      timestamp: alert.timeIntervals?.[0] ?? "N/A",
+      truck: alert.truck.plate,
+      driver: alert.driver.name,
     }));
-    
-    // When backend is ready, use this:
-    // const response = await apiClient.get<DashboardAlert[]>(DASHBOARD_API.RECENT_ALERTS, {
-    //   params: { limit },
-    // });
-    // return response.data;
   },
 
-  /**
-   * Get active trips for dashboard
-   */
-  async getActiveTrips(limit: number = 5): Promise<DashboardTrip[]> {
-    // TODO: Replace with real API when backend is ready
-    // PENDING BACKEND - Currently using mock data
-    
-    await new Promise(resolve => setTimeout(resolve, 400));
-    return mockActiveTrips.slice(0, limit).map(trip => ({
-      id: trip.id,
-      tripId: trip.tripId,
-      driver: trip.driver,
+  async getActiveTrips(limit = 5): Promise<DashboardTrip[]> {
+    const dashboard = getStoredDashboard();
+
+    return dashboard.activeTrips.trips.slice(0, limit).map((trip: any, index: number) => ({
+      id: index,
+      tripId: trip.truck.plate,
+      driver: trip.driver.name,
       origin: trip.origin,
       destination: trip.destination,
-      status: trip.status,
-      progress: trip.progress,
-      eta: trip.eta,
+      status: trip.status === 'in_progress' ? 'Active' : trip.status,
+      progress: 50, // backend not sending yet
+      eta: new Date(trip.estimatedArrival).toLocaleTimeString(),
     }));
-    
-    // When backend is ready, use this:
-    // const response = await apiClient.get<DashboardTrip[]>(DASHBOARD_API.ACTIVE_TRIPS, {
-    //   params: { limit },
-    // });
-    // return response.data;
-  },
-
-  /**
-   * Get dashboard statistics
-   */
-  async getStats(): Promise<Record<string, number>> {
-    const response = await apiClient.get<Record<string, number>>(DASHBOARD_API.STATS);
-    return response.data;
   },
 };

@@ -20,11 +20,6 @@ export interface AuthUser {
   lastName?: string;
 }
 
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: AuthUser;
-}
 
 
 export interface VerifyOtpResponse {
@@ -35,26 +30,84 @@ export interface VerifyOtpResponse {
   };
 }
 
+// ADD THESE TYPES
+export interface DashboardSummary {
+  trips: {
+    total: number;
+    active: number;
+    scheduled: number;
+  };
+  drivers: {
+    total: number;
+    available: number;
+  };
+  trucks: {
+    total: number;
+    available: number;
+  };
+}
+
+export interface DashboardAlertApi {
+  id: string;
+  type: string;
+  message: string;
+  severity: string;
+  status: string;
+  truck: { number: string };
+  driver: { name: string };
+  detectedAt: string;
+}
+
+export interface DashboardTripApi {
+  id: string;
+  tripNumber: string;
+  origin: string;
+  destination: string;
+  status: string;
+  driver: { name: string };
+  estimatedArrival: string;
+}
+
+export interface DashboardPayload {
+  summary: DashboardSummary;
+  alerts: {
+    criticalCount: number;
+    critical: DashboardAlertApi[];
+  };
+  activeTrips: {
+    count: number;
+    trips: DashboardTripApi[];
+  };
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: AuthUser;
+  dashboard: DashboardPayload; // 🔥 ADD THIS
+}
+
 
 
 export const authService = {
-  /**
-   * Login user
-   */
+
+
   async login(credentials: LoginCredentials): Promise<AuthUser> {
-    const response = await apiClient.post<LoginResponse>(
-      AUTH_API.LOGIN,
-      credentials
-    );
+  const response = await apiClient.post<LoginResponse>(
+    AUTH_API.LOGIN,
+    credentials
+  );
 
-    const { accessToken, refreshToken, user } = response.data;
+  const { accessToken, refreshToken, user, dashboard } = response.data;
 
-    // store tokens
-    setToken(accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
+  setToken(accessToken);
+  localStorage.setItem("refreshToken", refreshToken);
 
-    return user;
-  },
+  // 🔥 STORE DASHBOARD DATA
+  localStorage.setItem("dashboard", JSON.stringify(dashboard));
+
+  return user;
+},
 
   /**
    * Logout user (single session)
