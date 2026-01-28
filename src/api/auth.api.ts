@@ -1,16 +1,4 @@
-// // Auth API Endpoints
-// export const AUTH_API = {
-//   LOGIN: "/auth/login",
-//   LOGOUT: "/auth/logout",
-//   REGISTER: "/auth/register",
-//   REFRESH: "/auth/refresh",
-//   PROFILE: "/auth/profile",
-//   FORGOT_PASSWORD: "/auth/forgot-password",
-//   RESET_PASSWORD: "/auth/reset-password",
-// } as const;
 
-
-// src/api/auth.api.ts
 export const AUTH_API = {
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
@@ -23,3 +11,4 @@ export const AUTH_API = {
   VERIFY_OTP: "/auth/verify-otp",
   RESET_PASSWORD: "/auth/reset-password",
 } as const;
+

@@ -1,143 +1,137 @@
-// import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-// import { driverService } from "@/services/driverportal.service";
-
-// export const DRIVER_KEYS = {
-//   DASHBOARD: ["driver-dashboard"],
-//   ASSIGNED: ["driver-assigned"],
-//   IN_TRANSIT: ["driver-in-transit"],
-//   COMPLETED: ["driver-completed"],
-//   ALL: ["driver-all"],
-// };
-
-// export const useDriverDashboard = () => {
-//   // dashboard already stored during login
-//   const dashboard = localStorage.getItem("dashboard");
-//   return dashboard ? JSON.parse(dashboard) : null;
-// };
-
-// export const useAssignedTrips = () =>
-//   useQuery({
-//     queryKey: DRIVER_KEYS.ASSIGNED,
-//     queryFn: () => driverService.getAssignedTrips(),
-//   });
-
-// export const useInTransitTrip = () =>
-//   useQuery({
-//     queryKey: DRIVER_KEYS.IN_TRANSIT,
-//     queryFn: driverService.getInTransitTrip,
-//   });
-
-// export const useCompletedTrips = () =>
-//   useQuery({
-//     queryKey: DRIVER_KEYS.COMPLETED,
-//     queryFn: () => driverService.getCompletedTrips(),
-//   });
-
-// export const useStartTrip = () => {
-//   const qc = useQueryClient();
-//   return useMutation({
-//     mutationFn: driverService.startTrip,
-//     onSuccess: () => {
-//       qc.invalidateQueries({ queryKey: DRIVER_KEYS.IN_TRANSIT });
-//       qc.invalidateQueries({ queryKey: DRIVER_KEYS.ASSIGNED });
-//     },
-//   });
-// };
-
-// export const useCompleteTrip = () => {
-//   const qc = useQueryClient();
-//   return useMutation({
-//     mutationFn: driverService.completeTrip,
-//     onSuccess: () => {
-//       qc.invalidateQueries();
-//     },
-//   });
-// };
-
-// export const useUpdateActivity = () => {
-//   const qc = useQueryClient();
-//   return useMutation({
-//     mutationFn: ({ tripId, status }: { tripId: string; status: string }) =>
-//       driverService.updateActivity(tripId, status),
-//     onSuccess: () => {
-//       qc.invalidateQueries({ queryKey: DRIVER_KEYS.IN_TRANSIT });
-//     },
-//   });
-// };
-
-
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { driverService, DriverDashboard } from "@/services/driverportal.service";
+import { driverService } from "@/services/driverportal.service";
 
 export const DRIVER_KEYS = {
-  DASHBOARD: ["driver-dashboard"],
   ASSIGNED: ["driver-assigned"],
   IN_TRANSIT: ["driver-in-transit"],
   COMPLETED: ["driver-completed"],
   ALL: ["driver-all"],
 };
 
-export const useDriverDashboard = (): DriverDashboard | null => {
-  const dashboardStr = localStorage.getItem("driverDashboard");
-  if (!dashboardStr) return null;
-  
-  try {
-    const parsed = JSON.parse(dashboardStr);
-    return parsed.driverDashboard || null;
-  } catch (e) {
-    return null;
-  }
-};
-
+/**
+ * Assigned trips
+ */
 export const useAssignedTrips = () =>
   useQuery({
     queryKey: DRIVER_KEYS.ASSIGNED,
     queryFn: () => driverService.getAssignedTrips(),
+    staleTime: 30000,
   });
 
+/**
+ * In-transit trip
+ */
 export const useInTransitTrip = () =>
   useQuery({
     queryKey: DRIVER_KEYS.IN_TRANSIT,
     queryFn: driverService.getInTransitTrip,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 30000,
+    staleTime: 10000,
   });
 
+/**
+ * Completed trips
+ */
 export const useCompletedTrips = () =>
   useQuery({
     queryKey: DRIVER_KEYS.COMPLETED,
     queryFn: () => driverService.getCompletedTrips(),
+    staleTime: 60000,
   });
 
+/**
+ * Start trip mutation (🔥 FIXED)
+ */
 export const useStartTrip = () => {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: driverService.startTrip,
-    onSuccess: () => {
+
+    onSuccess: (_, tripId) => {
+      // 🔥 REMOVE trip from assigned cache instantly
+      qc.setQueryData(DRIVER_KEYS.ASSIGNED, (old: any[] = []) =>
+        old.filter(trip => trip.id !== tripId)
+      );
+
+      // 🔄 Refetch active trip
       qc.invalidateQueries({ queryKey: DRIVER_KEYS.IN_TRANSIT });
-      qc.invalidateQueries({ queryKey: DRIVER_KEYS.ASSIGNED });
-      qc.invalidateQueries({ queryKey: DRIVER_KEYS.DASHBOARD });
     },
   });
 };
 
+/**
+ * Complete trip mutation
+ */
+// export const useCompleteTrip = () => {
+//   const qc = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: driverService.completeTrip,
+
+//     onSuccess: () => {
+//       qc.invalidateQueries({ queryKey: DRIVER_KEYS.IN_TRANSIT });
+//       qc.invalidateQueries({ queryKey: DRIVER_KEYS.COMPLETED });
+//       qc.invalidateQueries({ queryKey: DRIVER_KEYS.ASSIGNED });
+//     },
+//   });
+// };
 export const useCompleteTrip = () => {
   const qc = useQueryClient();
+
   return useMutation({
-    mutationFn: driverService.completeTrip,
+    mutationFn: ({
+      tripId,
+      docs,
+    }: {
+      tripId: string;
+      docs: {
+        proofOfDeliveryUrl: string;
+        deliveryPictureUrl: string;
+      };
+    }) => driverService.completeTrip(tripId, docs),
+
     onSuccess: () => {
-      qc.invalidateQueries();
+      qc.invalidateQueries({ queryKey: DRIVER_KEYS.IN_TRANSIT });
+      qc.invalidateQueries({ queryKey: DRIVER_KEYS.COMPLETED });
+      qc.invalidateQueries({ queryKey: DRIVER_KEYS.ASSIGNED });
     },
   });
 };
 
+/**
+ * Update activity
+ */
 export const useUpdateActivity = () => {
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: ({ tripId, status }: { tripId: string; status: string }) =>
       driverService.updateActivity(tripId, status),
+
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: DRIVER_KEYS.IN_TRANSIT });
     },
   });
 };
+
+
+export const useUploadProofOfDelivery = () => {
+  return useMutation({
+    mutationFn: (file: File) =>
+      driverService.uploadProofOfDelivery(file),
+  });
+};
+
+/**
+ * Upload Delivery Picture (Image)
+ * 🔥 Uploads immediately on file select
+ */
+export const useUploadDeliveryPicture = () => {
+  return useMutation({
+    mutationFn: (file: File) =>
+      driverService.uploadDeliveryPicture(file),
+  });
+};
+

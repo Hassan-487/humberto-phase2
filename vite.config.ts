@@ -11,8 +11,8 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-          // target: "http://192.168.18.15:4000",
-          target:"https://b5aec375591d.ngrok-free.app/",
+           target: "http://192.168.18.15:4000",
+          // target:"https://b5aec375591d.ngrok-free.app/",
         changeOrigin: true,
         secure: false,
          headers: {

@@ -1,9 +1,19 @@
-import { ReactNode } from 'react';
+
+import { ReactNode, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { LayoutDashboard, Users, Truck, Route, AlertTriangle, FileText, Settings,LogOut,Bell,Menu} from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Truck, 
+  Route, 
+  AlertTriangle, 
+  FileText, 
+  Settings,
+  LogOut,
+  Menu
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -25,9 +35,51 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force navigation even if logout fails
+      navigate('/login', { replace: true });
+    }
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user) return '?';
+    
+    if (user.firstName && user.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    }
+    
+    if (user.firstName) {
+      return user.firstName[0].toUpperCase();
+    }
+    
+    if (user.email) {
+      return user.email[0].toUpperCase();
+    }
+    
+    return '?';
+  };
+
+  // Get display name
+  const getDisplayName = () => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    
+    if (user?.firstName) {
+      return user.firstName;
+    }
+    
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    
+    return 'User';
   };
 
   return (
@@ -67,7 +119,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="p-4 border-t border-sidebar-border">
           <div
             onClick={handleLogout}
-            className="sidebar-item text-sidebar-muted hover:text-destructive"
+            className="sidebar-item text-sidebar-muted hover:text-destructive cursor-pointer"
           >
             <LogOut className="h-5 w-5 flex-shrink-0" />
             {sidebarOpen && <span>Logout</span>}
@@ -93,23 +145,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           <div className="flex items-center gap-4">
-          
-            {/* <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center">
-                3
-              </span>
-            </Button> */}
-
             {/* User Info */}
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">{user?.firstName} {user?.lastName}</p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
+                <p className="text-sm font-medium text-foreground">
+                  {getDisplayName()}
+                </p>
+                <p className="text-xs text-muted-foreground capitalize">
+                  {user?.role || 'User'}
+                </p>
               </div>
               <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
                 <span className="text-sm font-medium text-primary-foreground">
-                  {user?.firstName?.split(' ').map(n => n[0]).join('')}
+                  {getUserInitials()}
                 </span>
               </div>
             </div>

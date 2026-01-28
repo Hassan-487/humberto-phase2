@@ -1,654 +1,4 @@
 
-
-// import { useState, useMemo, useEffect } from "react";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogFooter,
-// } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
-// import { Loader2, MapPin } from "lucide-react";
-
-// import { useTrucks } from "@/hooks/useTrucks";
-// import { useDrivers } from "@/hooks/useDrivers";
-// import { useCreateTrip } from "@/hooks/useTrips";
-// import { LargeMapPicker } from "./LargeMapPicker";
-
-// type MapMode = "origin" | "destination" | null;
-
-// const EMPTY_FORM = {
-//   origin: "",
-//   destination: "",
-
-//   originLocation: null,
-//   destinationLocation: null,
-
-//   originPickupTime: "",
-//   destinationDeliveryTime: "",
-
-//   truckId: "",
-//   driverId: "",
-//   weight: "",
-//   estimatedHours: "",
-//   cargoDescription: "",
-// };
-
-// export function CreateTripDialog({
-//   open,
-//   onClose,
-// }: {
-//   open: boolean;
-//   onClose: () => void;
-// }) {
-//   const { trucks } = useTrucks();
-//   const { drivers } = useDrivers();
-//   const { mutateAsync, isPending } = useCreateTrip();
-
-//   const availableTrucks = useMemo(
-//     () => (trucks || []).filter((t: any) => t.status === "available"),
-//     [trucks]
-//   );
-
-//   const availableDrivers = useMemo(
-//     () =>
-//       (drivers || []).filter(
-//         (d: any) => d.isActive && d.employmentStatus === "active"
-//       ),
-//     [drivers]
-//   );
-
-//   const [form, setForm] = useState<any>(EMPTY_FORM);
-//   const [mapMode, setMapMode] = useState<MapMode>(null);
-
-//   // 🔥 Reset everything on dialog open
-//   useEffect(() => {
-//     if (open) {
-//       setForm(EMPTY_FORM);
-//       setMapMode(null);
-//     }
-//   }, [open]);
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     if (!form.originLocation || !form.destinationLocation) {
-//       alert("Please select origin and destination on map");
-//       return;
-//     }
-
-//     if (!form.originPickupTime || !form.destinationDeliveryTime) {
-//       alert("Pickup and delivery times are required");
-//       return;
-//     }
-
-//     if (
-//       new Date(form.originPickupTime) >=
-//       new Date(form.destinationDeliveryTime)
-//     ) {
-//       alert("Delivery time must be after pickup time");
-//       return;
-//     }
-
-//     const payload = {
-//       origin: form.origin,
-//       destination: form.destination,
-
-//       originLocation: form.originLocation,
-//       destinationLocation: form.destinationLocation,
-
-//       originPickupTime: new Date(
-//         form.originPickupTime
-//       ).toISOString(),
-
-//       destinationDeliveryTime: new Date(
-//         form.destinationDeliveryTime
-//       ).toISOString(),
-
-//       driverId: form.driverId,
-//       truckId: form.truckId,
-
-//       estimatedHours: Number(form.estimatedHours),
-//       weight: Number(form.weight),
-//       weightCategory: "standard",
-//       cargoDescription: form.cargoDescription,
-//     };
-
-//     await mutateAsync(payload);
-//     onClose();
-//   };
-
-//   return (
-//     <Dialog open={open} onOpenChange={onClose}>
-//       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-//         <div className="max-h-[80vh] overflow-y-auto space-y-6 pr-2">
-//           <DialogHeader>
-//             <DialogTitle>Create New Trip</DialogTitle>
-//           </DialogHeader>
-
-//           <form onSubmit={handleSubmit} className="space-y-6">
-//             {/* ORIGIN / DESTINATION TEXT */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <Input
-//                 placeholder="Origin (e.g. Alberta)"
-//                 value={form.origin}
-//                 onChange={(e) =>
-//                   setForm({ ...form, origin: e.target.value })
-//                 }
-//                 required
-//               />
-//               <Input
-//                 placeholder="Destination (e.g. British Columbia)"
-//                 value={form.destination}
-//                 onChange={(e) =>
-//                   setForm({ ...form, destination: e.target.value })
-//                 }
-//                 required
-//               />
-//             </div>
-
-//             {/* PICKUP / DELIVERY TIMES */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <div className="space-y-1">
-//                 <label className="text-sm font-medium">
-//                   Origin Pickup Time
-//                 </label>
-//                 <Input
-//                   type="datetime-local"
-//                   value={form.originPickupTime}
-//                   onChange={(e) =>
-//                     setForm({
-//                       ...form,
-//                       originPickupTime: e.target.value,
-//                     })
-//                   }
-//                   required
-//                 />
-//               </div>
-
-//               <div className="space-y-1">
-//                 <label className="text-sm font-medium">
-//                   Destination Delivery Time
-//                 </label>
-//                 <Input
-//                   type="datetime-local"
-//                   value={form.destinationDeliveryTime}
-//                   onChange={(e) =>
-//                     setForm({
-//                       ...form,
-//                       destinationDeliveryTime: e.target.value,
-//                     })
-//                   }
-//                   required
-//                 />
-//               </div>
-//             </div>
-
-//             {/* MAP CONTROLS */}
-//             <div className="flex items-center gap-2">
-//               <Button
-//                 type="button"
-//                 variant={mapMode === "origin" ? "default" : "outline"}
-//                 onClick={() => setMapMode("origin")}
-//               >
-//                 Select Origin
-//               </Button>
-
-//               <Button
-//                 type="button"
-//                 variant={mapMode === "destination" ? "default" : "outline"}
-//                 onClick={() => setMapMode("destination")}
-//               >
-//                 Select Destination
-//               </Button>
-
-//               {mapMode && (
-//                 <Button
-//                   type="button"
-//                   variant="ghost"
-//                   className="gap-1"
-//                   onClick={() => setMapMode(null)}
-//                 >
-//                   <MapPin className="h-4 w-4" /> Close Map
-//                 </Button>
-//               )}
-//             </div>
-
-//             {/* MAP */}
-//             {mapMode && (
-//               <LargeMapPicker
-//                 key={mapMode} // 🔥 force remount on mode change
-//                 mode={mapMode}
-//                 existingLocations={{
-//                   origin: form.originLocation,
-//                   destination: form.destinationLocation,
-//                 }}
-//                 onSelect={(loc) =>
-//                   setForm((prev: any) => ({
-//                     ...prev,
-//                     [`${mapMode}Location`]: loc,
-//                   }))
-//                 }
-//               />
-//             )}
-
-//             {/* TRUCK & DRIVER */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
-//                 <SelectTrigger>
-//                   <SelectValue placeholder="Select Truck" />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   {availableTrucks.map((t: any) => (
-//                     <SelectItem key={t._id} value={t._id}>
-//                       {t.licensePlate}
-//                     </SelectItem>
-//                   ))}
-//                 </SelectContent>
-//               </Select>
-
-//               <Select onValueChange={(v) => setForm({ ...form, driverId: v })}>
-//                 <SelectTrigger>
-//                   <SelectValue placeholder="Select Driver" />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   {availableDrivers.map((d: any) => (
-//                     <SelectItem key={d._id} value={d._id}>
-//                       {d.firstName} {d.lastName}
-//                     </SelectItem>
-//                   ))}
-//                 </SelectContent>
-//               </Select>
-//             </div>
-
-//             {/* LOGISTICS */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <Input
-//                 type="number"
-//                 placeholder="Weight (kg)"
-//                 value={form.weight}
-//                 onChange={(e) =>
-//                   setForm({ ...form, weight: e.target.value })
-//                 }
-//                 required
-//               />
-//               <Input
-//                 type="number"
-//                 placeholder="Estimated Hours"
-//                 value={form.estimatedHours}
-//                 onChange={(e) =>
-//                   setForm({ ...form, estimatedHours: e.target.value })
-//                 }
-//                 required
-//               />
-//             </div>
-
-//             <Input
-//               placeholder="Cargo Description"
-//               value={form.cargoDescription}
-//               onChange={(e) =>
-//                 setForm({ ...form, cargoDescription: e.target.value })
-//               }
-//               required
-//             />
-
-//             <DialogFooter>
-//               <Button type="submit" disabled={isPending}>
-//                 {isPending ? (
-//                   <Loader2 className="h-4 w-4 animate-spin" />
-//                 ) : (
-//                   "Schedule Trip"
-//                 )}
-//               </Button>
-//             </DialogFooter>
-//           </form>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-
-
-
-
-// import { useState, useMemo, useEffect } from "react";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogFooter,
-// } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
-// import { Loader2, MapPin } from "lucide-react";
-
-// import { useTrucks } from "@/hooks/useTrucks";
-// import { useDrivers } from "@/hooks/useDrivers";
-// import { useCreateTrip } from "@/hooks/useTrips";
-// import { LargeMapPicker } from "./LargeMapPicker";
-
-// type MapMode = "origin" | "destination" | null;
-
-// const EMPTY_FORM = {
-//   origin: "",
-//   destination: "",
-
-//   originLocation: null,
-//   destinationLocation: null,
-
-//   originPickupTime: "",
-//   destinationDeliveryTime: "",
-
-//   truckId: "",
-//   driverId: "",
-//   weight: "",
-//   estimatedHours: "",
-//   cargoDescription: "",
-// };
-
-// export function CreateTripDialog({
-//   open,
-//   onClose,
-// }: {
-//   open: boolean;
-//   onClose: () => void;
-// }) {
-//   const { trucks } = useTrucks();
-//   const { drivers } = useDrivers();
-//   const { mutateAsync, isPending } = useCreateTrip();
-
-//   const [form, setForm] = useState<any>(EMPTY_FORM);
-//   const [mapMode, setMapMode] = useState<MapMode>(null);
-//   const [driverError, setDriverError] = useState<string | null>(null);
-
-//   // ✅ Only block INACTIVE drivers
-//   const availableDrivers = useMemo(
-//     () => (drivers || []).filter((d: any) => d.status !== "inactive"),
-//     [drivers]
-//   );
-
-//   const availableTrucks = useMemo(
-//     () => (trucks || []).filter((t: any) => t.status === "available"),
-//     [trucks]
-//   );
-
-//   // 🔥 Reset state on dialog open
-//   useEffect(() => {
-//     if (open) {
-//       setForm(EMPTY_FORM);
-//       setMapMode(null);
-//       setDriverError(null);
-//     }
-//   }, [open]);
-
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     if (!form.originLocation || !form.destinationLocation) {
-//       alert("Please select origin and destination on map");
-//       return;
-//     }
-
-//     if (!form.originPickupTime || !form.destinationDeliveryTime) {
-//       alert("Pickup and delivery times are required");
-//       return;
-//     }
-
-//     if (
-//       new Date(form.originPickupTime) >=
-//       new Date(form.destinationDeliveryTime)
-//     ) {
-//       alert("Delivery time must be after pickup time");
-//       return;
-//     }
-
-//     const payload = {
-//       origin: form.origin,
-//       destination: form.destination,
-
-//       originLocation: form.originLocation,
-//       destinationLocation: form.destinationLocation,
-
-//       originPickupTime: new Date(form.originPickupTime).toISOString(),
-//       destinationDeliveryTime: new Date(
-//         form.destinationDeliveryTime
-//       ).toISOString(),
-
-//       driverId: form.driverId,
-//       truckId: form.truckId,
-
-//       estimatedHours: Number(form.estimatedHours),
-//       weight: Number(form.weight),
-//       weightCategory: "standard",
-//       cargoDescription: form.cargoDescription,
-//     };
-
-//     try {
-//       await mutateAsync(payload);
-//       onClose();
-//     } catch (err: any) {
-//       const message =
-//         err?.response?.data?.message ||
-//         err?.response?.data?.error ||
-//         "Driver is not available for the selected time";
-
-//       setDriverError(message);
-//     }
-//   };
-
-//   return (
-//     <Dialog open={open} onOpenChange={onClose}>
-//       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-//         <div className="max-h-[80vh] overflow-y-auto space-y-6 pr-2">
-//           <DialogHeader>
-//             <DialogTitle>Create New Trip</DialogTitle>
-//           </DialogHeader>
-
-//           <form onSubmit={handleSubmit} className="space-y-6">
-//             {/* ORIGIN / DESTINATION */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <Input
-//                 placeholder="Origin"
-//                 value={form.origin}
-//                 onChange={(e) =>
-//                   setForm({ ...form, origin: e.target.value })
-//                 }
-//                 required
-//               />
-//               <Input
-//                 placeholder="Destination"
-//                 value={form.destination}
-//                 onChange={(e) =>
-//                   setForm({ ...form, destination: e.target.value })
-//                 }
-//                 required
-//               />
-//             </div>
-
-//             {/* TIMES */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <Input
-//                 type="datetime-local"
-//                 value={form.originPickupTime}
-//                 onChange={(e) =>
-//                   setForm({
-//                     ...form,
-//                     originPickupTime: e.target.value,
-//                   })
-//                 }
-//                 required
-//               />
-//               <Input
-//                 type="datetime-local"
-//                 value={form.destinationDeliveryTime}
-//                 onChange={(e) =>
-//                   setForm({
-//                     ...form,
-//                     destinationDeliveryTime: e.target.value,
-//                   })
-//                 }
-//                 required
-//               />
-//             </div>
-
-//             {/* MAP CONTROLS */}
-//             <div className="flex gap-2">
-//               <Button
-//                 type="button"
-//                 variant={mapMode === "origin" ? "default" : "outline"}
-//                 onClick={() => setMapMode("origin")}
-//               >
-//                 Select Origin
-//               </Button>
-
-//               <Button
-//                 type="button"
-//                 variant={mapMode === "destination" ? "default" : "outline"}
-//                 onClick={() => setMapMode("destination")}
-//               >
-//                 Select Destination
-//               </Button>
-
-//               {mapMode && (
-//                 <Button
-//                   type="button"
-//                   variant="ghost"
-//                   onClick={() => setMapMode(null)}
-//                 >
-//                   <MapPin className="h-4 w-4" /> Close Map
-//                 </Button>
-//               )}
-//             </div>
-
-//             {/* MAP */}
-//             {mapMode && (
-//               <LargeMapPicker
-//                 key={mapMode}
-//                 mode={mapMode}
-//                 existingLocations={{
-//                   origin: form.originLocation,
-//                   destination: form.destinationLocation,
-//                 }}
-//                 onSelect={(loc) =>
-//                   setForm((prev: any) => ({
-//                     ...prev,
-//                     [`${mapMode}Location`]: loc,
-//                   }))
-//                 }
-//               />
-//             )}
-
-//             {/* TRUCK */}
-//             <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
-//               <SelectTrigger>
-//                 <SelectValue placeholder="Select Truck" />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 {availableTrucks.map((t: any) => (
-//                   <SelectItem key={t._id} value={t._id}>
-//                     {t.licensePlate}
-//                   </SelectItem>
-//                 ))}
-//               </SelectContent>
-//             </Select>
-
-//             {/* DRIVER ERROR */}
-//             {driverError && (
-//               <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-//                 {driverError}
-//               </div>
-//             )}
-
-//             {/* DRIVER */}
-//             <Select
-//               onValueChange={(v) => {
-//                 setForm({ ...form, driverId: v });
-//                 setDriverError(null);
-//               }}
-//             >
-//               <SelectTrigger>
-//                 <SelectValue placeholder="Select Driver" />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 {availableDrivers.map((d: any) => (
-//                   <SelectItem key={d._id} value={d._id}>
-//                     {d.firstName} {d.lastName}{" "}
-//                     <span className="text-muted-foreground">
-//                       ({d.status.replace("_", " ")})
-//                     </span>
-//                   </SelectItem>
-//                 ))}
-//               </SelectContent>
-//             </Select>
-
-//             {/* LOGISTICS */}
-//             <div className="grid grid-cols-2 gap-4">
-//               <Input
-//                 type="number"
-//                 placeholder="Weight (kg)"
-//                 value={form.weight}
-//                 onChange={(e) =>
-//                   setForm({ ...form, weight: e.target.value })
-//                 }
-//                 required
-//               />
-//               <Input
-//                 type="number"
-//                 placeholder="Estimated Hours"
-//                 value={form.estimatedHours}
-//                 onChange={(e) =>
-//                   setForm({ ...form, estimatedHours: e.target.value })
-//                 }
-//                 required
-//               />
-//             </div>
-
-//             <Input
-//               placeholder="Cargo Description"
-//               value={form.cargoDescription}
-//               onChange={(e) =>
-//                 setForm({ ...form, cargoDescription: e.target.value })
-//               }
-//               required
-//             />
-
-//             <DialogFooter>
-//               <Button type="submit" disabled={isPending}>
-//                 {isPending ? (
-//                   <Loader2 className="h-4 w-4 animate-spin" />
-//                 ) : (
-//                   "Schedule Trip"
-//                 )}
-//               </Button>
-//             </DialogFooter>
-//           </form>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-
-
-
 import { useState, useMemo, useEffect } from "react";
 import {
   Dialog,
@@ -656,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -666,25 +17,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, MapPin } from "lucide-react";
+import { 
+  Loader2, 
+  MapPin, 
+  Truck, 
+  User as UserIcon, 
+  Calendar, 
+  Package, 
+  FileCheck,
+  Navigation2
+} from "lucide-react";
 
 import { useTrucks } from "@/hooks/useTrucks";
 import { useDrivers } from "@/hooks/useDrivers";
 import { useCreateTrip } from "@/hooks/useTrips";
+import { uploadTripDocuments } from "@/services/trip.service";
 import { LargeMapPicker } from "./LargeMapPicker";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 type MapMode = "origin" | "destination" | null;
 
 const EMPTY_FORM = {
   origin: "",
   destination: "",
-
   originLocation: null,
   destinationLocation: null,
-
   originPickupTime: "",
   destinationDeliveryTime: "",
-
   truckId: "",
   driverId: "",
   weight: "",
@@ -692,13 +53,7 @@ const EMPTY_FORM = {
   cargoDescription: "",
 };
 
-export function CreateTripDialog({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: () => void; }) {
   const { trucks } = useTrucks();
   const { drivers } = useDrivers();
   const { mutateAsync, isPending } = useCreateTrip();
@@ -707,269 +62,222 @@ export function CreateTripDialog({
   const [mapMode, setMapMode] = useState<MapMode>(null);
   const [driverError, setDriverError] = useState<string | null>(null);
 
-  // ✅ allow all except inactive
-  const availableDrivers = useMemo(
-    () => (drivers || []).filter((d: any) => d.status !== "inactive"),
-    [drivers]
-  );
+  const [invoice1Url, setInvoice1Url] = useState<string>("");
+  const [invoice2Url, setInvoice2Url] = useState<string>("");
+  const [uploadingInvoice1, setUploadingInvoice1] = useState(false);
+  const [uploadingInvoice2, setUploadingInvoice2] = useState(false);
 
-  const availableTrucks = useMemo(
-    () => (trucks || []).filter((t: any) => t.status === "available"),
-    [trucks]
-  );
+  const availableDrivers = useMemo(() => (drivers || []).filter((d: any) => d.status !== "inactive"), [drivers]);
+  const availableTrucks = useMemo(() => (trucks || []).filter((t: any) => t.status === "available"), [trucks]);
 
-  // Reset on open
   useEffect(() => {
     if (open) {
       setForm(EMPTY_FORM);
       setMapMode(null);
       setDriverError(null);
+      setInvoice1Url("");
+      setInvoice2Url("");
     }
   }, [open]);
 
+  const uploadInvoice = async (file: File, type: "invoice1" | "invoice2") => {
+    const fd = new FormData();
+    fd.append(type, file);
+    try {
+      type === "invoice1" ? setUploadingInvoice1(true) : setUploadingInvoice2(true);
+      const res = await uploadTripDocuments(fd);
+      if (type === "invoice1") setInvoice1Url(res.invoice1?.url);
+      else setInvoice2Url(res.invoice2?.url);
+    } catch (err) {
+      console.error("Invoice upload failed", err);
+    } finally {
+      setUploadingInvoice1(false);
+      setUploadingInvoice2(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!form.originLocation || !form.destinationLocation) {
-      alert("Please select origin and destination on map");
-      return;
-    }
-
-    if (!form.originPickupTime || !form.destinationDeliveryTime) {
-      alert("Pickup and delivery times are required");
-      return;
-    }
-
-    if (
-      new Date(form.originPickupTime) >=
-      new Date(form.destinationDeliveryTime)
-    ) {
-      alert("Delivery time must be after pickup time");
-      return;
-    }
+    if (!form.originLocation || !form.destinationLocation) return alert("Select locations on map");
+    if (!form.originPickupTime || !form.destinationDeliveryTime) return alert("Times required");
 
     const payload = {
-      origin: form.origin,
-      destination: form.destination,
-
-      originLocation: form.originLocation,
-      destinationLocation: form.destinationLocation,
-
+      ...form,
       originPickupTime: new Date(form.originPickupTime).toISOString(),
-      destinationDeliveryTime: new Date(
-        form.destinationDeliveryTime
-      ).toISOString(),
-
-      driverId: form.driverId,
-      truckId: form.truckId,
-
+      destinationDeliveryTime: new Date(form.destinationDeliveryTime).toISOString(),
       estimatedHours: Number(form.estimatedHours),
       weight: Number(form.weight),
       weightCategory: "standard",
-      cargoDescription: form.cargoDescription,
+      invoice1: invoice1Url || undefined,
+      invoice2: invoice2Url || undefined,
     };
 
     try {
       await mutateAsync(payload);
       onClose();
     } catch (err: any) {
-      setDriverError(
-        err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          "Driver is not available for the selected time"
-      );
+      setDriverError(err?.response?.data?.message || "Failed to create trip");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-        <div className="max-h-[80vh] overflow-y-auto space-y-6 pr-2">
-          <DialogHeader>
-            <DialogTitle>Create New Trip</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* ORIGIN / DESTINATION */}
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                placeholder="Origin"
-                value={form.origin}
-                onChange={(e) =>
-                  setForm({ ...form, origin: e.target.value })
-                }
-                required
-              />
-              <Input
-                placeholder="Destination"
-                value={form.destination}
-                onChange={(e) =>
-                  setForm({ ...form, destination: e.target.value })
-                }
-                required
-              />
+      <DialogContent className="max-w-4xl h-[95vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="p-6 pb-2">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 p-2 rounded-lg">
+              <Navigation2 className="h-6 w-6 text-primary" />
             </div>
-
-            {/* TIMES */}
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                type="datetime-local"
-                value={form.originPickupTime}
-                onChange={(e) =>
-                  setForm({ ...form, originPickupTime: e.target.value })
-                }
-                required
-              />
-              <Input
-                type="datetime-local"
-                value={form.destinationDeliveryTime}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    destinationDeliveryTime: e.target.value,
-                  })
-                }
-                required
-              />
+            <div>
+              <DialogTitle className="text-xl">Create New Logistics Trip</DialogTitle>
+              <DialogDescription>Schedule routes, assign assets, and upload cargo documentation.</DialogDescription>
             </div>
+          </div>
+        </DialogHeader>
 
-            {/* MAP CONTROLS */}
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant={mapMode === "origin" ? "default" : "outline"}
-                onClick={() => setMapMode("origin")}
-              >
-                Select Origin
-              </Button>
+        <Separator />
 
-              <Button
-                type="button"
-                variant={mapMode === "destination" ? "default" : "outline"}
-                onClick={() => setMapMode("destination")}
-              >
-                Select Destination
-              </Button>
+        <ScrollArea className="flex-1 overflow-y-auto px-6">
+          <form id="trip-form" onSubmit={handleSubmit} className="py-6 space-y-8">
+            
+            {/* 1. ROUTE & MAP SECTION */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+                <MapPin className="h-4 w-4" /> Route Information
+              </div>
+              <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <div className="space-y-2">
+                  <Label>Origin Address</Label>
+                  <Input placeholder="Loading dock / Warehouse" value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} required />
+                  <Button type="button" size="sm" variant={mapMode === "origin" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("origin")}>
+                    {form.originLocation ? "✓ Origin Pinned" : "Pin Origin on Map"}
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <Label>Destination Address</Label>
+                  <Input placeholder="Delivery point" value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })} required />
+                  <Button type="button" size="sm" variant={mapMode === "destination" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("destination")}>
+                    {form.destinationLocation ? "✓ Destination Pinned" : "Pin Destination on Map"}
+                  </Button>
+                </div>
+              </div>
 
               {mapMode && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setMapMode(null)}
-                >
-                  <MapPin className="h-4 w-4" /> Close Map
-                </Button>
+                <div className="border rounded-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+                  <div className="bg-slate-900 text-white p-2 flex justify-between items-center px-4">
+                    <span className="text-xs font-medium uppercase">Selecting {mapMode}...</span>
+                    <Button type="button" variant="ghost" size="sm" className="h-7 text-white hover:bg-white/20" onClick={() => setMapMode(null)}>Close Map</Button>
+                  </div>
+                  <LargeMapPicker mode={mapMode} existingLocations={{ origin: form.originLocation, destination: form.destinationLocation }} 
+                    onSelect={(loc) => setForm((prev: any) => ({ ...prev, [`${mapMode}Location`]: loc }))} />
+                </div>
               )}
-            </div>
+            </section>
 
-            {/* MAP */}
-            {mapMode && (
-              <LargeMapPicker
-                key={mapMode}
-                mode={mapMode}
-                existingLocations={{
-                  origin: form.originLocation,
-                  destination: form.destinationLocation,
-                }}
-                onSelect={(loc) =>
-                  setForm((prev: any) => ({
-                    ...prev,
-                    [`${mapMode}Location`]: loc,
-                  }))
-                }
-              />
-            )}
-
-            {/* DRIVER ERROR */}
-            {driverError && (
-              <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-                {driverError}
+            {/* 2. SCHEDULE & LOGISTICS */}
+            <section className="grid grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+                  <Calendar className="h-4 w-4" /> Schedule
+                </div>
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Pickup Time</Label>
+                    <Input type="datetime-local" value={form.originPickupTime} onChange={(e) => setForm({ ...form, originPickupTime: e.target.value })} required />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Estimated Delivery</Label>
+                    <Input type="datetime-local" value={form.destinationDeliveryTime} onChange={(e) => setForm({ ...form, destinationDeliveryTime: e.target.value })} required />
+                  </div>
+                </div>
               </div>
-            )}
 
-            {/* TRUCK + DRIVER (SAME ROW) */}
-            <div className="grid grid-cols-2 gap-4">
-              <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Truck" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTrucks.map((t: any) => (
-                    <SelectItem key={t._id} value={t._id}>
-                      {t.licensePlate}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+                  <Package className="h-4 w-4" /> Cargo Details
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Weight (kg)</Label>
+                    <Input type="number" placeholder="0.00" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} required />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Est. Hours</Label>
+                    <Input type="number" placeholder="Duration" value={form.estimatedHours} onChange={(e) => setForm({ ...form, estimatedHours: e.target.value })} required />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                    <Label className="text-xs">Description</Label>
+                    <textarea placeholder="Specify cargo type..." value={form.cargoDescription} onChange={(e) => setForm({ ...form, cargoDescription: e.target.value })} 
+                      className="w-full text-sm rounded-md border border-input p-2 h-[82px] focus-visible:ring-1 focus-visible:ring-ring outline-none" required />
+                </div>
+              </div>
+            </section>
 
-              <Select
-                onValueChange={(v) => {
-                  setForm({ ...form, driverId: v });
-                  setDriverError(null);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Driver" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableDrivers.map((d: any) => (
-                    <SelectItem key={d._id} value={d._id}>
-                      {d.firstName} {d.lastName}{" "}
-                      <span className="text-muted-foreground">
-                        ({d.status.replace("_", " ")})
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* 3. ASSET ASSIGNMENT */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+                <Truck className="h-4 w-4" /> Asset Assignment
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>Assigned Truck</Label>
+                  <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
+                    <SelectTrigger className="bg-white"><SelectValue placeholder="Search available trucks..." /></SelectTrigger>
+                    <SelectContent>
+                      {availableTrucks.map((t: any) => (<SelectItem key={t._id} value={t._id}>{t.licensePlate} ({t.model})</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Assigned Driver</Label>
+                  <Select onValueChange={(v) => { setForm({ ...form, driverId: v }); setDriverError(null); }}>
+                    <SelectTrigger className="bg-white"><SelectValue placeholder="Search active drivers..." /></SelectTrigger>
+                    <SelectContent>
+                      {availableDrivers.map((d: any) => (<SelectItem key={d._id} value={d._id}>{d.firstName} {d.lastName}</SelectItem>))}
+                    </SelectContent>
+                  </Select>
+                  {driverError && <p className="text-[10px] text-destructive font-medium">{driverError}</p>}
+                </div>
+              </div>
+            </section>
 
-            {/* LOGISTICS */}
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                type="number"
-                placeholder="Weight (kg)"
-                value={form.weight}
-                onChange={(e) =>
-                  setForm({ ...form, weight: e.target.value })
-                }
-                required
-              />
-              <Input
-                type="number"
-                placeholder="Estimated Hours"
-                value={form.estimatedHours}
-                onChange={(e) =>
-                  setForm({ ...form, estimatedHours: e.target.value })
-                }
-                required
-              />
-            </div>
-
-            {/* EXPANDABLE CARGO DESCRIPTION */}
-            <textarea
-              placeholder="Cargo Description"
-              value={form.cargoDescription}
-              onChange={(e) =>
-                setForm({ ...form, cargoDescription: e.target.value })
-              }
-              rows={3}
-              className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              required
-            />
-
-            <DialogFooter>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Schedule Trip"
-                )}
-              </Button>
-            </DialogFooter>
+            {/* 4. DOCUMENTATION */}
+            <section className="space-y-4 pb-4">
+              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+                <FileCheck className="h-4 w-4" /> Documentation
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                 <InvoiceUploadBox label="Primary Invoice" uploading={uploadingInvoice1} url={invoice1Url} onUpload={(f) => uploadInvoice(f, "invoice1")} />
+                 <InvoiceUploadBox label="Secondary Invoice" uploading={uploadingInvoice2} url={invoice2Url} onUpload={(f) => uploadInvoice(f, "invoice2")} />
+              </div>
+            </section>
           </form>
-        </div>
+        </ScrollArea>
+
+        <Separator />
+
+        <DialogFooter className="p-6 bg-slate-50/50 border-t">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>Cancel</Button>
+          <Button form="trip-form" type="submit" className="min-w-[150px]" disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Schedule Trip
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function InvoiceUploadBox({ label, uploading, url, onUpload }: any) {
+  return (
+    <div className="relative border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors hover:border-primary/50 bg-white">
+      <Input type="file" accept="application/pdf" className="absolute inset-0 opacity-0 cursor-pointer" disabled={uploading} onChange={(e) => e.target.files && onUpload(e.target.files[0])} />
+      {uploading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> : <FileCheck className={`h-5 w-5 ${url ? 'text-emerald-500' : 'text-slate-400'}`} />}
+      <div className="text-center">
+        <p className="text-xs font-semibold">{label}</p>
+        <p className="text-[10px] text-muted-foreground">{url ? "✓ Uploaded" : "Click to upload PDF"}</p>
+      </div>
+    </div>
   );
 }

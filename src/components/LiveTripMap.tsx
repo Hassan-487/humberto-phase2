@@ -1,84 +1,3 @@
-// import { useEffect, useRef } from "react";
-// import { loadGoogleMaps } from "@/lib/google-loader";
-
-// interface MapProps {
-//   destination: any;
-//   current: any;
-// }
-
-// export function LiveTripMap({ destination, current }: MapProps) {
-//   const mapRef = useRef<HTMLDivElement>(null);
-//   const mapInstance = useRef<any>(null);
-//   const truckMarker = useRef<any>(null);
-//   const directionsRenderer = useRef<any>(null);
-
-//   useEffect(() => {
-//     loadGoogleMaps().then(() => {
-//       if (!mapRef.current || mapInstance.current) return;
-
-//       // Initialize Map
-//       mapInstance.current = new window.google.maps.Map(mapRef.current, {
-//         zoom: 12,
-//         disableDefaultUI: true,
-//         zoomControl: true,
-//       });
-
-//       // Initialize Directions Renderer (The Blue Line)
-//       directionsRenderer.current = new window.google.maps.DirectionsRenderer({
-//         map: mapInstance.current,
-//         suppressMarkers: true, // We will draw our own truck icon
-//         polylineOptions: {
-//           strokeColor: "#3b82f6",
-//           strokeWeight: 5,
-//           strokeOpacity: 0.6,
-//         },
-//       });
-
-//       // Force resize fix for the "Gray Box" issue in Sheets
-//       setTimeout(() => {
-//         window.google.maps.event.trigger(mapInstance.current, "resize");
-//       }, 500);
-//     });
-//   }, []);
-
-//   useEffect(() => {
-//     if (!mapInstance.current || !window.google || !current || !destination) return;
-
-//     const truckPos = { lat: current.latitude, lng: current.longitude };
-//     const destPos = { lat: destination.latitude, lng: destination.longitude };
-
-//     // 1. Draw/Update Truck Marker
-//     if (!truckMarker.current) {
-//       truckMarker.current = new window.google.maps.Marker({
-//         position: truckPos,
-//         map: mapInstance.current,
-//         label: "🚚",
-//         title: "Current Location",
-//       });
-//     } else {
-//       truckMarker.current.setPosition(truckPos);
-//     }
-
-//     // 2. Calculate and Display Route
-//     const directionsService = new window.google.maps.DirectionsService();
-//     directionsService.route(
-//       {
-//         origin: truckPos,
-//         destination: destPos,
-//         travelMode: window.google.maps.TravelMode.DRIVING,
-//       },
-//       (result: any, status: string) => {
-//         if (status === "OK") {
-//           directionsRenderer.current.setDirections(result);
-//         }
-//       }
-//     );
-//   }, [current, destination]);
-
-//   return <div ref={mapRef} className="h-full w-full rounded-lg border bg-muted" />;
-// }
-
-
 
 import { useEffect, useRef } from "react";
 import { loadGoogleMaps } from "@/lib/google-loader";
@@ -102,84 +21,158 @@ export function LiveTripMap({ destination, current }: MapProps) {
   const directionsRenderer = useRef<any>(null);
 console.log("LiveTripMap render", { current, destination });
 
-  // =========================
-  // 1️⃣ INIT MAP (ONCE)
-  // =========================
-  useEffect(() => {
-    loadGoogleMaps().then(() => {
-      if (!mapRef.current || mapInstance.current) return;
 
-      mapInstance.current = new window.google.maps.Map(mapRef.current, {
-        center: {
-          lat: Number(current?.latitude) || 30.3753,
-          lng: Number(current?.longitude) || 69.3451,
-        },
-        zoom: 12,
-        disableDefaultUI: true,
-        zoomControl: true,
-      });
+//  useEffect(() => {
+//   let isMounted = true;
 
-      directionsRenderer.current = new window.google.maps.DirectionsRenderer({
-        map: mapInstance.current,
-        suppressMarkers: true,
-        polylineOptions: {
-          strokeColor: "#3b82f6",
-          strokeWeight: 5,
-          strokeOpacity: 0.6,
-        },
-      });
+//   loadGoogleMaps().then(() => {
+//     if (!isMounted || !mapRef.current) return;
 
-      // Sheet resize fix
-      setTimeout(() => {
-        window.google.maps.event.trigger(mapInstance.current, "resize");
-      }, 300);
+   
+//     mapInstance.current = new window.google.maps.Map(mapRef.current, {
+//       center: {
+//         lat: Number(current.latitude),
+//         lng: Number(current.longitude),
+//       },
+//       zoom: 13,
+//       disableDefaultUI: true,
+//       zoomControl: true,
+//     });
+
+//     directionsRenderer.current = new window.google.maps.DirectionsRenderer({
+//       map: mapInstance.current,
+//       suppressMarkers: true,
+//       polylineOptions: {
+//         strokeColor: "#3b82f6",
+//         strokeWeight: 5,
+//         strokeOpacity: 0.7,
+//       },
+//     });
+
+ 
+//     setTimeout(() => {
+//       window.google.maps.event.trigger(mapInstance.current, "resize");
+//       mapInstance.current.setCenter({
+//         lat: Number(current.latitude),
+//         lng: Number(current.longitude),
+//       });
+//     }, 400);
+//   });
+
+//   return () => {
+//     isMounted = false;
+//     mapInstance.current = null;
+//     truckMarker.current = null;
+//     destinationMarker.current = null;
+//     directionsRenderer.current = null;
+//   };
+// }, [current, destination]);
+
+
+useEffect(() => {
+  let isMounted = true;
+
+  loadGoogleMaps().then(() => {
+    if (!isMounted || !mapRef.current) return;
+
+    mapInstance.current = new window.google.maps.Map(mapRef.current, {
+      center: {
+        lat: Number(current.latitude),
+        lng: Number(current.longitude),
+      },
+      zoom: 13,
+      disableDefaultUI: true,
+      zoomControl: true,
     });
-  }, []);
 
-  // =========================
-  // 2️⃣ DRAW ROUTE (ONLY WHEN DESTINATION CHANGES)
-  // =========================
-  useEffect(() => {
-    if (!mapInstance.current || !destination || !current) return;
+    directionsRenderer.current = new window.google.maps.DirectionsRenderer({
+      map: mapInstance.current,
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: "#3b82f6",
+        strokeWeight: 5,
+        strokeOpacity: 0.7,
+      },
+    });
 
-    const directionsService = new window.google.maps.DirectionsService();
-
-    directionsService.route(
-      {
-        origin: {
+    setTimeout(() => {
+      if (mapInstance.current) {
+        window.google.maps.event.trigger(mapInstance.current, "resize");
+        mapInstance.current.setCenter({
           lat: Number(current.latitude),
           lng: Number(current.longitude),
-        },
-        destination: {
-          lat: Number(destination.latitude),
-          lng: Number(destination.longitude),
-        },
-        travelMode: window.google.maps.TravelMode.DRIVING,
-      },
-      (result: any, status: string) => {
-        if (status === "OK") {
-          directionsRenderer.current.setDirections(result);
-        }
+        });
       }
-    );
+    }, 400);
+  });
 
-    // Destination marker
-    if (!destinationMarker.current) {
-      destinationMarker.current = new window.google.maps.Marker({
-        map: mapInstance.current,
-        label: "D",
-      });
+  return () => {
+    isMounted = false;
+    // Properly clean up Google Maps objects
+    if (truckMarker.current) {
+      truckMarker.current.setMap(null);
+      truckMarker.current = null;
     }
+    if (destinationMarker.current) {
+      destinationMarker.current.setMap(null);
+      destinationMarker.current = null;
+    }
+    if (directionsRenderer.current) {
+      directionsRenderer.current.setMap(null);
+      directionsRenderer.current = null;
+    }
+    // Let mapInstance be garbage collected naturally
+  };
+}, []); // ✅ EMPTY ARRAY - only run once on mount
 
-    destinationMarker.current.setPosition({
-      lat: destination.latitude,
-      lng: destination.longitude,
+
+useEffect(() => {
+ 
+  if (
+    !mapInstance.current ||
+    !directionsRenderer.current ||
+    !current ||
+    !destination
+  ) {
+    return;
+  }
+
+  const directionsService = new window.google.maps.DirectionsService();
+
+  directionsService.route(
+    {
+      origin: {
+        lat: Number(current.latitude),
+        lng: Number(current.longitude),
+      },
+      destination: {
+        lat: Number(destination.latitude),
+        lng: Number(destination.longitude),
+      },
+      travelMode: window.google.maps.TravelMode.DRIVING,
+    },
+    (result: any, status: string) => {
+      if (status === window.google.maps.DirectionsStatus.OK) {
+        directionsRenderer.current!.setDirections(result);
+      }
+    }
+  );
+
+ 
+  if (!destinationMarker.current) {
+    destinationMarker.current = new window.google.maps.Marker({
+      map: mapInstance.current,
+      label: "D",
     });
-  }, [destination]);
+  }
 
-  // =========================
-  // 3️⃣ MOVE TRUCK (EVERY GPS UPDATE)
-  // =========================
+  destinationMarker.current.setPosition({
+    lat: Number(destination.latitude),
+    lng: Number(destination.longitude),
+  });
+}, [destination, current]); 
+
+
   useEffect(() => {
     if (!mapInstance.current || !current) return;
 

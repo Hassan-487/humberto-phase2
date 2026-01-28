@@ -7,4 +7,5 @@ export const TRUCK_API = {
   STATUS: (id: string) => `/trucks/${id}/status`,
   LOCATION: (id: string) => `/trucks/${id}/location`,
   MAINTENANCE: (id: string) => `/trucks/${id}/maintenance`,
+   UPLOAD_DOCUMENTS: "/documents/truck/upload",
 } as const;

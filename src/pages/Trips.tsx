@@ -2,14 +2,14 @@
 import { useState } from "react";
 import { 
   Plus, Search, MapPin, Loader2, Trash2, Edit3, Gauge, Navigation, 
-  Package, Info, User, Activity, Timer, Zap, BarChart3, History 
+  Package, Info, User, Activity, Timer, Zap, BarChart3, History ,CircleX
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { useTrips, useDeleteTrip } from "@/hooks/useTrips"; 
+import { useTrips, useCancelTrip, useDeleteTrip } from "@/hooks/useTrips"; 
 import { CreateTripDialog } from "@/components/CreateTripDialog";
 import { UpdateTripDialog } from "@/components/UpdateTripDialog";
 // import { TripMap } from "@/components/TripMap";
@@ -29,8 +29,9 @@ const getStatusBadgeStyles = (status: string) => {
 
 export default function Trips() {
   const { data: trips, isLoading } = useTrips();
-  const deleteMutation = useDeleteTrip();
-  
+  const cancelMutation = useCancelTrip();
+ const deleteMutation = useDeleteTrip();
+
   const [selectedTrip, setSelectedTrip] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
@@ -125,84 +126,133 @@ export default function Trips() {
             <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-none">
               
               {/* 1. GPS TRACKING SECTION */}
+
 <section className="space-y-4">
   <Label className="font-bold flex items-center gap-2 text-primary uppercase text-[10px] tracking-widest">
     <MapPin className="h-4 w-4" /> Live Tracking
   </Label>
 
   <div className="h-64 w-full relative">
-  {selectedTrip.currentLocation?.latitude !== undefined &&
-   selectedTrip.currentLocation?.longitude !== undefined &&
-   selectedTrip.destinationLocation?.latitude !== undefined &&
-   selectedTrip.destinationLocation?.longitude !== undefined ? (
-    <LiveTripMap
-      key={selectedTrip._id}
-      current={selectedTrip.currentLocation}
-      destination={selectedTrip.destinationLocation}
-    />
-  ) : (
-    <div className="h-full w-full bg-muted rounded-lg flex items-center justify-center">
-      <p className="text-xs text-muted-foreground">
-        Awaiting coordinates...
-      </p>
-    </div>
-  )}
-</div>
+    {(() => {
+      const currentLocation =
+        selectedTrip.currentLocation ?? selectedTrip.originLocation;
 
+      const destinationLocation =
+        selectedTrip.destinationLocation;
+
+      const hasCoords =
+        currentLocation?.latitude !== undefined &&
+        currentLocation?.longitude !== undefined &&
+        destinationLocation?.latitude !== undefined &&
+        destinationLocation?.longitude !== undefined;
+
+      return hasCoords ? (
+        <LiveTripMap
+  key={selectedTrip.tripNumber} // 👈 IMPORTANT
+  current={{
+    latitude: Number(currentLocation.latitude),
+    longitude: Number(currentLocation.longitude),
+  }}
+  destination={{
+    latitude: Number(destinationLocation.latitude),
+    longitude: Number(destinationLocation.longitude),
+  }}
+/>
+
+      ) : (
+        <div className="h-full w-full bg-muted rounded-lg flex items-center justify-center">
+          <p className="text-xs text-muted-foreground">
+            Location data not available
+          </p>
+        </div>
+      );
+    })()}
+  </div>
 </section>
 
-             {/* 2. DRIVING ANALYTICS */}
-<section className="space-y-4">
-  <Label className="font-bold flex items-center gap-2 text-primary uppercase text-[10px] tracking-widest">
-    <BarChart3 className="h-4 w-4" /> Driving Metrics
+
+{/* LOCATION DETAILS */}
+<section className="space-y-4 pt-2">
+  <Label className="font-bold uppercase text-[10px] tracking-widest text-primary">
+    Location Details
   </Label>
-  <div className="grid grid-cols-2 gap-4">
-    <div className="p-4 border rounded-xl bg-card shadow-sm space-y-2">
-      <div className="flex items-center justify-between">
-        <Label className="text-[10px] font-bold">AVG SPEED</Label>
-        <Zap className="h-3 w-3 text-amber-500" />
-      </div>
-      {/* FIXED: Added optional chaining to prevent crash */}
-      <p className="text-lg font-black">
-        {selectedTrip.drivingMetrics?.averageSpeed ?? 0} 
-        <span className="text-[10px] font-normal"> km/h</span>
-      </p>
-    </div>
-    
-    <div className="p-4 border rounded-xl bg-card shadow-sm space-y-2">
-      <div className="flex items-center justify-between">
-        <Label className="text-[10px] font-bold">MAX SPEED</Label>
-        <Gauge className="h-3 w-3 text-rose-500" />
-      </div>
-      <p className="text-lg font-black">
-        {selectedTrip.drivingMetrics?.maxSpeed ?? 0} 
-        <span className="text-[10px] font-normal"> km/h</span>
+
+  <div className="space-y-3">
+    <div className="p-3 border rounded-lg bg-card">
+      <Label className="text-[10px] uppercase text-muted-foreground">
+        Origin
+      </Label>
+      <p className="text-sm font-semibold">
+        {selectedTrip.originLocation?.address ||
+          selectedTrip.origin ||
+          "Not available"}
       </p>
     </div>
 
-    <div className="p-4 border rounded-xl bg-card shadow-sm space-y-2">
-      <div className="flex items-center justify-between">
-        <Label className="text-[10px] font-bold">TOTAL DIST.</Label>
-        <Activity className="h-3 w-3 text-blue-500" />
-      </div>
-      <p className="text-lg font-black">
-        {selectedTrip.drivingMetrics?.totalDistanceCovered ?? 0} 
-        <span className="text-[10px] font-normal"> km</span>
+    <div className="p-3 border rounded-lg bg-card">
+      <Label className="text-[10px] uppercase text-muted-foreground">
+        Destination
+      </Label>
+      <p className="text-sm font-semibold">
+        {selectedTrip.destinationLocation?.address ||
+          selectedTrip.destination ||
+          "Not available"}
       </p>
     </div>
 
-    <div className="p-4 border rounded-xl bg-card shadow-sm space-y-2">
-      <div className="flex items-center justify-between">
-        <Label className="text-[10px] font-bold">TIME ELAPSED</Label>
-        <Timer className="h-3 w-3 text-primary" />
-      </div>
-      <p className="text-lg font-black">
-        {selectedTrip.drivingMetrics?.totalDrivingTime ?? 0} 
-        <span className="text-[10px] font-normal"> mins</span>
+    <div className="p-3 border rounded-lg bg-card">
+      <Label className="text-[10px] uppercase text-muted-foreground">
+        Current Location
+      </Label>
+      <p className="text-sm font-semibold">
+        {selectedTrip.currentLocation?.address ||
+          selectedTrip.originLocation?.address ||
+          "Awaiting live update"}
       </p>
     </div>
   </div>
 </section>
+
+
+
+           {/* DRIVING METRICS */}
+<section className="space-y-4 pt-4 border-t">
+  <Label className="font-bold flex items-center gap-2 text-primary uppercase text-[10px] tracking-widest">
+    <BarChart3 className="h-4 w-4" /> Driving Metrics
+  </Label>
+
+  <div className="grid grid-cols-2 gap-4">
+    {/* AVG SPEED */}
+    <div className="p-4 border rounded-xl bg-card">
+      <Label className="text-[10px] font-bold">AVG SPEED</Label>
+      <p className="text-lg font-black">
+        {selectedTrip.aiAverageSpeed ?? 0}
+        <span className="text-[10px] font-normal"> km/h</span>
+      </p>
+    </div>
+
+    {/* ETA */}
+    <div className="p-4 border rounded-xl bg-card">
+      <Label className="text-[10px] font-bold">ETA</Label>
+      <p className="text-sm font-bold">
+        {selectedTrip.aiEstimatedArrivalHuman || "Calculating..."}
+      </p>
+    </div>
+
+    {/* DELIVERY TIME */}
+    <div className="p-4 border rounded-xl bg-card col-span-2">
+      <Label className="text-[10px] font-bold">DELIVERY TIME</Label>
+      <p className="text-sm font-semibold">
+        {selectedTrip.destinationDeliveryTime
+          ? new Date(
+              selectedTrip.destinationDeliveryTime
+            ).toLocaleString()
+          : "Not scheduled"}
+      </p>
+    </div>
+  </div>
+</section>
+
               {/* 3. SHIPMENT DETAILS */}
               <section className="space-y-4 pt-4 border-t">
                 <div className="p-4 bg-muted/20 border rounded-xl space-y-3">
@@ -218,26 +268,96 @@ export default function Trips() {
                   </div>
                 </div>
               </section>
+
+
+              <section className="space-y-4 pt-4 border-t">
+  <Label className="font-bold uppercase text-[10px] tracking-widest text-primary">
+    Trip Documents
+  </Label>
+
+  <div className="space-y-2">
+    {/* Invoice 1 */}
+    {selectedTrip.tripDocuments?.invoice1Url ? (
+      <a
+        href={selectedTrip.tripDocuments.invoice1Url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
+      >
+        <Package className="h-4 w-4" />
+        View Invoice 1
+      </a>
+    ) : (
+      <p className="text-xs text-muted-foreground">
+        Invoice 1 not uploaded
+      </p>
+    )}
+
+    {/* Invoice 2 */}
+    {selectedTrip.tripDocuments?.invoice2Url ? (
+      <a
+        href={selectedTrip.tripDocuments.invoice2Url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:underline"
+      >
+        <Package className="h-4 w-4" />
+        View Invoice 2
+      </a>
+    ) : (
+      <p className="text-xs text-muted-foreground">
+        Invoice 2 not uploaded
+      </p>
+    )}
+  </div>
+</section>
             </div>
           )}
 
-          <PermissionGuard>
-          <SheetFooter className="p-6 border-t bg-muted/10">
-            <div className="flex w-full gap-4">
-              <Button className="flex-1 gap-2 h-11" variant="outline" onClick={() => setOpenUpdate(true)}>
-                <Edit3 className="h-4 w-4" /> Edit Trip
-              </Button>
-              <Button 
-                className="flex-1 gap-2 h-11" 
-                variant="destructive" 
-                onClick={() => { if(confirm("Permanently delete this trip record?")) deleteMutation.mutateAsync(selectedTrip.id); }}
-                disabled={deleteMutation.isPending}
-              >
-                <Trash2 className="h-4 w-4" /> Delete
-              </Button>
-            </div>
-          </SheetFooter>
-          </PermissionGuard>
+         <PermissionGuard>
+  <SheetFooter className="p-6 border-t bg-muted/10">
+    <div className="flex w-full gap-4">
+      <Button
+        className="flex-1 gap-2 h-11"
+        variant="outline"
+        onClick={() => setOpenUpdate(true)}
+      >
+        <Edit3 className="h-4 w-4" /> Edit Trip
+      </Button>
+
+      {selectedTrip?.status !== "cancelled" ? (
+        
+        <Button
+          className="flex-1 gap-2 h-11"
+          variant="destructive"
+          onClick={() => {
+            if (confirm("Cancel this trip?")) {
+              cancelMutation.mutateAsync(selectedTrip.id);
+            }
+          }}
+          disabled={cancelMutation.isPending}
+        >
+          <CircleX className="h-4 w-4" /> Cancel
+        </Button>
+      ) : (
+        // ❌ DELETE PERMANENTLY
+        <Button
+          className="flex-1 gap-2 h-11"
+          variant="destructive"
+          onClick={() => {
+            if (confirm("Permanently delete this trip? This cannot be undone.")) {
+              deleteMutation.mutateAsync(selectedTrip.id);
+            }
+          }}
+          disabled={deleteMutation.isPending}
+        >
+          <Trash2 className="h-4 w-4" /> Delete
+        </Button>
+      )}
+    </div>
+  </SheetFooter>
+</PermissionGuard>
+
         </SheetContent>
       </Sheet>
 

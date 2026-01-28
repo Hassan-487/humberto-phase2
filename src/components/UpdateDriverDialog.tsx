@@ -33,7 +33,7 @@ export function UpdateDriverDialog({ open, onClose, driver }: UpdateDriverDialog
     lastName: "",
     phoneNumber: "",
     email: "",
-    employmentStatus: "",
+    //Status: "",
     licenseNumber: "",
   });
 
@@ -45,7 +45,7 @@ export function UpdateDriverDialog({ open, onClose, driver }: UpdateDriverDialog
         lastName: driver.lastName || "",
         phoneNumber: driver.phoneNumber || "",
         email: driver.email || "",
-        employmentStatus: driver.employmentStatus || "active",
+       // Status: driver.Status || "active",
         licenseNumber: driver.licenseNumber || "",
       });
     }
@@ -109,11 +109,11 @@ export function UpdateDriverDialog({ open, onClose, driver }: UpdateDriverDialog
                 required 
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label>Employment Status</Label>
               <Select 
-                value={form.employmentStatus} 
-                onValueChange={(v) => setForm({ ...form, employmentStatus: v })}
+                value={form.Status} 
+                onValueChange={(v) => setForm({ ...form, Status: v })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Status" />
@@ -124,7 +124,7 @@ export function UpdateDriverDialog({ open, onClose, driver }: UpdateDriverDialog
                   <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
 
           <div className="space-y-2">

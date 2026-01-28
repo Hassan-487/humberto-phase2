@@ -1,41 +1,4 @@
 
-// // import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-// // import { driverService } from "@/services/driver.service";
-
-// // export function useDrivers() {
-// //   const qc = useQueryClient();
-
-// //   const list = useQuery({
-// //     queryKey: ["drivers"],
-// //     queryFn: driverService.getDrivers,
-// //   });
-
-// //   const create = useMutation({
-// //     mutationFn: driverService.createDriver,
-// //     onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers"] }),
-// //   });
-
-// //   const update = useMutation({
-// //     mutationFn: ({ id, data }: { id: string; data: any }) =>
-// //       driverService.updateDriver(id, data),
-// //     onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers"] }),
-// //   });
-
-// //   const remove = useMutation({
-// //     mutationFn: driverService.deleteDriver,
-// //     onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers"] }),
-// //   });
-
-// //   return {
-// //     drivers: list.data ?? [],
-// //     loading: list.isLoading,
-// //     createDriver: create.mutateAsync,
-// //     updateDriver: update.mutateAsync,
-// //     deleteDriver: remove.mutateAsync,
-// //   };
-// // }
-
-
 // import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 // import { driverService } from "@/services/driver.service";
 
@@ -43,39 +6,49 @@
 //   const qc = useQueryClient();
 
 //   const list = useQuery({
-//     queryKey: ["drivers", "list"], // Specific key for better management
+//     queryKey: ["drivers", "list"],
 //     queryFn: driverService.getDrivers,
-//     // --- CACHE SETTINGS ---
-//     staleTime: 5 * 60 * 1000,     // Consider data fresh for 5 mins
-//     refetchOnMount: false,        // Don't refetch just because component mounted
-//     refetchOnWindowFocus: false,  // Don't refetch on tab switch
+//     staleTime: 60_000,
+//     refetchOnWindowFocus: false,
 //   });
 
 //   const create = useMutation({
 //     mutationFn: driverService.createDriver,
-//     onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+//     onSuccess: () =>
+//       qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
 //   });
 
 //   const update = useMutation({
 //     mutationFn: ({ id, data }: { id: string; data: any }) =>
 //       driverService.updateDriver(id, data),
-//     onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+//     onSuccess: () =>
+//       qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
 //   });
 
 //   const remove = useMutation({
 //     mutationFn: driverService.deleteDriver,
-//     onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+//     onSuccess: () =>
+//       qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+//   });
+
+//   const uploadDocuments = useMutation({
+//     mutationFn: driverService.uploadDriverDocuments,
 //   });
 
 //   return {
 //     drivers: list.data ?? [],
 //     loading: list.isLoading,
+
 //     createDriver: create.mutateAsync,
 //     updateDriver: update.mutateAsync,
 //     deleteDriver: remove.mutateAsync,
-//     isDeleting: remove.isPending
+
+//     uploadDriverDocuments: uploadDocuments.mutateAsync,
+
+//     refetch: list.refetch,
 //   };
 // }
+
 
 
 
@@ -88,32 +61,46 @@ export function useDrivers() {
   const list = useQuery({
     queryKey: ["drivers", "list"],
     queryFn: driverService.getDrivers,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
+
+    // ✅ AUTO FETCH EVERY 2 MINUTES
+    refetchInterval: 2 * 60 * 1000,
+    refetchIntervalInBackground: true,
+
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const create = useMutation({
     mutationFn: driverService.createDriver,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
   });
 
   const update = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       driverService.updateDriver(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
   });
 
   const remove = useMutation({
     mutationFn: driverService.deleteDriver,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+  });
+
+  const uploadDocuments = useMutation({
+    mutationFn: driverService.uploadDriverDocuments,
   });
 
   return {
     drivers: list.data ?? [],
     loading: list.isLoading,
+
     createDriver: create.mutateAsync,
     updateDriver: update.mutateAsync,
     deleteDriver: remove.mutateAsync,
-    isDeleting: remove.isPending,
+
+    uploadDriverDocuments: uploadDocuments.mutateAsync,
   };
 }

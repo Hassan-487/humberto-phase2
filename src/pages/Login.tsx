@@ -1,10 +1,12 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Truck, AlertCircle } from 'lucide-react';
+import { Truck, AlertCircle, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -13,22 +15,55 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  setIsLoading(true);
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
 
-  try {
-    await login(email, password);   // ✅ WAIT for API
-    navigate('/dashboard');         // ✅ success
-  } catch (err) {
-    setError('Invalid email or password');
-  } finally {
-    setIsLoading(false);
-  }
-};
+    try {
+      console.log('🔐 Attempting login for:', email);
+      
+      // Call login from auth context (which calls authService internally)
+      const user = await login(email, password);
+      
+      console.log('✅ Login successful, user:', user);
+      console.log('👤 User role:', user.role);
 
+      // Route based on role
+      if (user.role === 'driver') {
+        console.log('📍 Navigating to driver dashboard');
+        
+        toast({
+          title: 'Welcome back!',
+          description: 'Redirecting to driver dashboard...',
+        });
+        
+        navigate('/driver/dashboard', { replace: true });
+      } else {
+        console.log('📍 Navigating to admin dashboard');
+        
+        toast({
+          title: 'Welcome back!',
+          description: 'Redirecting to dashboard...',
+        });
+        
+        navigate('/dashboard', { replace: true });
+      }
+    } catch (err: any) {
+      console.error('❌ Login error:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Invalid email or password';
+      setError(errorMessage);
+      toast({
+        title: 'Login failed',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -84,7 +119,7 @@ export default function Login() {
           <div className="space-y-2">
             <h2 className="text-3xl font-bold text-foreground">Welcome back</h2>
             <p className="text-muted-foreground">
-              Enter your credentials to access your dashboard
+              Enter your credentials to access your account
             </p>
           </div>
 
@@ -101,10 +136,11 @@ export default function Login() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@demo.com"
+                placeholder="your.email@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
                 className="h-12"
               />
             </div>
@@ -118,6 +154,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
                 className="h-12"
               />
             </div>
@@ -127,10 +164,21 @@ export default function Login() {
               className="w-full h-12 text-base font-medium"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                'Sign in'
+              )}
             </Button>
           </form>
 
+          <div className="text-center text-sm text-muted-foreground">
+            <p>Sign in with your role-specific credentials</p>
+            <p className="mt-1">Drivers and admins use the same login</p>
+          </div>
         </div>
       </div>
     </div>

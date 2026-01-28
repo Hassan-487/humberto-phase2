@@ -66,8 +66,16 @@ export const driverService = {
     return res.data.data;
   },
 
-  async completeTrip(tripId: string) {
-    const res = await driverportalApi.completeTrip(tripId);
+ 
+
+async completeTrip(
+    tripId: string,
+    docs: {
+      proofOfDeliveryUrl: string;
+      deliveryPictureUrl: string;
+    }
+  ) {
+    const res = await driverportalApi.completeTrip(tripId, docs);
     return res.data.data;
   },
 
@@ -77,4 +85,24 @@ export const driverService = {
     });
     return res.data.data;
   },
+
+  async uploadProofOfDelivery(file: File) {
+    const fd = new FormData();
+    fd.append("proofOfDelivery", file);
+
+    const res = await driverportalApi.uploadDeliveryDocuments(fd);
+    // return res.data.data?.proofOfDelivery;
+    return res.data.data.proofOfDelivery;
+  },
+
+  // ✅ Upload Delivery Picture (Image)
+  async uploadDeliveryPicture(file: File) {
+    const fd = new FormData();
+    fd.append("deliveryPicture", file);
+
+    const res = await driverportalApi.uploadDeliveryDocuments(fd);
+    // return res.data.data?.deliveryPicture;
+
+return res.data.data.deliveryPicture; 
+ },
 };
