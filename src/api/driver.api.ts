@@ -2,7 +2,7 @@
 
 import apiClient from "@/services/apiClient";
 
-/* ================= TYPES ================= */
+
 
 export interface Driver {
   _id: string;
@@ -20,18 +20,16 @@ export interface Driver {
   createdAt: string;
 }
 
-/* ================= API PATHS ================= */
 
 export const DRIVER_API = {
   LIST: "/drivers",
   DETAILS: (id: string) => `/auth/drivers/${id}`,
-  CREATE: "/auth/create-driver", // ✅ FIXED
+  CREATE: "/auth/create-driver", 
   UPDATE: (id: string) => `/drivers/${id}`,
   DELETE: (authUser: string) => `/drivers/${authUser}`,
   UPLOAD_DOCUMENTS: "/documents/driver/upload",
 };
 
-/* ================= API METHODS ================= */
 
 export const driverApi = {
   getDrivers: (params?: Record<string, any>) =>

@@ -24,7 +24,7 @@ export interface DashboardTrip {
   destination: string;
   status: string;
   progress: number;
-  eta: string;
+  aiEstimatedArrivalTime: string;
 }
 
 const getStoredDashboard = () => {
@@ -70,7 +70,18 @@ export const dashboardService = {
       destination: trip.destination,
       status: trip.status === 'in_progress' ? 'Active' : trip.status,
       progress: 50, // backend not sending yet
-      eta: new Date(trip.estimatedArrival).toLocaleTimeString(),
+      aiEstimatedArrivalTime: new Date(trip.estimatedArrival).toLocaleString(
+  'en-US',
+  {
+    timeZone: 'America/Mexico_City',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }
+),
+
     }));
   },
 };

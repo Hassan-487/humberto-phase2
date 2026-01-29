@@ -15,7 +15,7 @@ export interface Alert {
   };
 
   truck: {
-    vehicleNumber: string;
+    licensePlate: string;
   };
 
   createdAt: string;

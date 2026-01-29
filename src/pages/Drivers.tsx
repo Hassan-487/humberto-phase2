@@ -22,18 +22,29 @@ const getStatusBadgeClass = (status: string) => {
   switch (status) {
     case "idle":
       return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
+
     case "assigned":
       return "bg-blue-500/10 text-blue-600 border-blue-200";
-    case "in_transit":
-      return "bg-purple-500/10 text-purple-600 border-purple-200";
+
+    case "in_progress":
+      // Dark purple
+      return "bg-purple-700/15 text-purple-800 border-purple-400";
+
+    case "stopped":
+      // Red for stopped
+      return "bg-red-500/10 text-red-600 border-red-200";
+
     case "complete":
       return "bg-teal-500/10 text-teal-600 border-teal-200";
+
     case "inactive":
       return "bg-slate-200 text-slate-600 border-slate-300";
+
     default:
       return "bg-slate-100 text-slate-600 border-slate-200";
   }
 };
+
 
 export default function Drivers() {
   const { drivers, loading, deleteDriver } = useDrivers();

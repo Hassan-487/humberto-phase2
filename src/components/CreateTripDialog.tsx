@@ -225,7 +225,7 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
                   <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
                     <SelectTrigger className="bg-white"><SelectValue placeholder="Search available trucks..." /></SelectTrigger>
                     <SelectContent>
-                      {availableTrucks.map((t: any) => (<SelectItem key={t._id} value={t._id}>{t.licensePlate} ({t.model})</SelectItem>))}
+                      {availableTrucks.map((t: any) => (<SelectItem key={t._id} value={t._id}>{t.licensePlate} </SelectItem>))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -234,7 +234,7 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
                   <Select onValueChange={(v) => { setForm({ ...form, driverId: v }); setDriverError(null); }}>
                     <SelectTrigger className="bg-white"><SelectValue placeholder="Search active drivers..." /></SelectTrigger>
                     <SelectContent>
-                      {availableDrivers.map((d: any) => (<SelectItem key={d._id} value={d._id}>{d.firstName} {d.lastName}</SelectItem>))}
+                      {availableDrivers.map((d: any) => (<SelectItem key={d._id} value={d._id}>{d.firstName} {d.lastName}({d.status})</SelectItem>))}
                     </SelectContent>
                   </Select>
                   {driverError && <p className="text-[10px] text-destructive font-medium">{driverError}</p>}

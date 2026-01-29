@@ -1,5 +1,3 @@
-
-
 export const ALERT_API = {
   LIST: '/alerts',
   //ACKNOWLEDGE: (id: string) => `/alert/${id}/acknowledge`,
