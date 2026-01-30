@@ -1,341 +1,3 @@
-
-// import { useState } from "react";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogFooter,
-//   DialogDescription,
-// } from "@/components/ui/dialog";
-// import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { useDrivers } from "@/hooks/useDrivers";
-// import {
-//   Loader2,
-//   User,
-//   FileText,
-//   CheckCircle2,
-//   UploadCloud,
-// } from "lucide-react";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { Separator } from "@/components/ui/separator";
-
-// export function AddDriverDialog({ open, onClose }: any) {
-//   const { createDriver, uploadDriverDocuments } = useDrivers();
-
-//   const [loading, setLoading] = useState(false);
-//   const [uploading, setUploading] = useState({
-//     license: false,
-//     tax: false,
-//     identity: false,
-//   });
-
-//   const [form, setForm] = useState({
-//     firstName: "",
-//     lastName: "",
-//     email: "",
-//     password: "",
-//     phoneNumber: "",
-//     licenseNumber: "",
-//     licenseExpiry: "",
-//   });
-
-//   const [urls, setUrls] = useState({
-//     licenseUrl: "",
-//     taxStatusCertificateUrl: "",
-//     identityCardUrl: "",
-//   });
-
-//   const handleFileUpload = async (
-//     file: File,
-//     type: "license" | "taxStatusCertificate" | "identityCard"
-//   ) => {
-//     const loadingKey =
-//       type === "taxStatusCertificate"
-//         ? "tax"
-//         : type === "identityCard"
-//         ? "identity"
-//         : "license";
-
-//     setUploading((prev) => ({ ...prev, [loadingKey]: true }));
-
-//     try {
-//       const fd = new FormData();
-//       fd.append(type, file);
-
-//       const res = await uploadDriverDocuments(fd);
-
-//       const urlKey = `${type}Url` as keyof typeof urls;
-//       setUrls((prev) => ({ ...prev, [urlKey]: res[type].url }));
-//     } finally {
-//       setUploading((prev) => ({ ...prev, [loadingKey]: false }));
-//     }
-//   };
-
-//   const submit = async () => {
-//     setLoading(true);
-//     try {
-//       await createDriver({ ...form, ...urls });
-//       onClose();
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <Dialog open={open} onOpenChange={onClose}>
-//       <DialogContent className="max-w-2xl h-[90vh] p-0 overflow-hidden flex flex-col">
-//         {/* ================= HEADER ================= */}
-//         <DialogHeader className="p-6 pb-2 shrink-0">
-//           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-//             <User className="h-6 w-6 text-primary" />
-//             Register New Driver
-//           </DialogTitle>
-//           <DialogDescription>
-//             Fill in the driver's professional details and upload required
-//             documents.
-//           </DialogDescription>
-//         </DialogHeader>
-
-//         <Separator />
-
-//         {/* ================= SCROLLABLE BODY ================= */}
-//         <ScrollArea className="flex-1 overflow-y-auto px-6">
-//           <div className="space-y-8 py-6">
-//             {/* Personal Info */}
-//             <section className="space-y-4">
-//               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-//                 Personal Information
-//               </h3>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <InputField
-//                   label="First Name"
-//                   value={form.firstName}
-//                   onChange={(v) =>
-//                     setForm({ ...form, firstName: v })
-//                   }
-//                 />
-//                 <InputField
-//                   label="Last Name"
-//                   value={form.lastName}
-//                   onChange={(v) =>
-//                     setForm({ ...form, lastName: v })
-//                   }
-//                 />
-//                 <InputField
-//                   label="Email Address"
-//                   type="email"
-//                   span
-//                   value={form.email}
-//                   onChange={(v) =>
-//                     setForm({ ...form, email: v })
-//                   }
-//                 />
-//                 <InputField
-//                   label="Temporary Password"
-//                   type="password"
-//                   value={form.password}
-//                   onChange={(v) =>
-//                     setForm({ ...form, password: v })
-//                   }
-//                 />
-//                 <InputField
-//                   label="Phone Number"
-//                   value={form.phoneNumber}
-//                   onChange={(v) =>
-//                     setForm({ ...form, phoneNumber: v })
-//                   }
-//                 />
-//               </div>
-//             </section>
-
-//             <Separator />
-
-//             {/* License */}
-//             <section className="space-y-4">
-//               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-//                 License Details
-//               </h3>
-
-//               <div className="grid grid-cols-2 gap-4">
-//                 <InputField
-//                   label="License Number"
-//                   value={form.licenseNumber}
-//                   onChange={(v) =>
-//                     setForm({ ...form, licenseNumber: v })
-//                   }
-//                 />
-//                 <InputField
-//                   label="License Expiry"
-//                   type="date"
-//                   value={form.licenseExpiry}
-//                   onChange={(v) =>
-//                     setForm({ ...form, licenseExpiry: v })
-//                   }
-//                 />
-//               </div>
-//             </section>
-
-//             <Separator />
-
-//             {/* Documents */}
-//             <section className="space-y-4 pb-4">
-//               <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-//                 Required Documents (PDF)
-//               </h3>
-
-//               <div className="grid gap-4">
-//                 <UploadField
-//                   label="Driver License"
-//                   uploading={uploading.license}
-//                   uploaded={!!urls.licenseUrl}
-//                   onSelect={(file) =>
-//                     handleFileUpload(file, "license")
-//                   }
-//                 />
-//                 <UploadField
-//                   label="Tax Status Certificate"
-//                   uploading={uploading.tax}
-//                   uploaded={!!urls.taxStatusCertificateUrl}
-//                   onSelect={(file) =>
-//                     handleFileUpload(file, "taxStatusCertificate")
-//                   }
-//                 />
-//                 <UploadField
-//                   label="Identity Card"
-//                   uploading={uploading.identity}
-//                   uploaded={!!urls.identityCardUrl}
-//                   onSelect={(file) =>
-//                     handleFileUpload(file, "identityCard")
-//                   }
-//                 />
-//               </div>
-//             </section>
-//           </div>
-//         </ScrollArea>
-
-//         <Separator />
-
-//         {/* ================= FOOTER ================= */}
-//         <DialogFooter className="p-6 bg-slate-50/50 shrink-0">
-//           <Button variant="ghost" onClick={onClose} disabled={loading}>
-//             Cancel
-//           </Button>
-
-//           <Button
-//             onClick={submit}
-//             className="min-w-[160px]"
-//             disabled={
-//               loading ||
-//               !urls.licenseUrl ||
-//               !urls.taxStatusCertificateUrl
-//             }
-//           >
-//             {loading ? (
-//               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-//             ) : (
-//               "Create Driver Account"
-//             )}
-//           </Button>
-//         </DialogFooter>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// }
-
-// /* ================= HELPERS ================= */
-
-// function InputField({
-//   label,
-//   value,
-//   onChange,
-//   type = "text",
-//   span,
-// }: any) {
-//   return (
-//     <div className={`space-y-1.5 ${span ? "col-span-2" : ""}`}>
-//       <Label className="text-xs font-medium">{label}</Label>
-//       <Input
-//         type={type}
-//         value={value}
-//         onChange={(e) => onChange(e.target.value)}
-//         className="focus-visible:ring-primary"
-//       />
-//     </div>
-//   );
-// }
-
-// function UploadField({
-//   label,
-//   uploading,
-//   uploaded,
-//   onSelect,
-// }: any) {
-//   return (
-//     <div className="flex items-center justify-between p-3 border rounded-lg bg-card shadow-sm">
-//       <div className="flex items-center gap-3">
-//         <div
-//           className={`p-2 rounded-full ${
-//             uploaded ? "bg-emerald-100" : "bg-slate-100"
-//           }`}
-//         >
-//           {uploaded ? (
-//             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-//           ) : (
-//             <FileText className="h-5 w-5 text-slate-500" />
-//           )}
-//         </div>
-
-//         <div>
-//           <p className="text-sm font-medium">{label}</p>
-//           <p className="text-xs text-muted-foreground">
-//             {uploaded ? "Document uploaded" : "No file selected"}
-//           </p>
-//         </div>
-//       </div>
-
-//       <div>
-//         <Input
-//           type="file"
-//           accept="application/pdf"
-//           id={label}
-//           className="hidden"
-//           disabled={uploading}
-//           onChange={(e) =>
-//             e.target.files && onSelect(e.target.files[0])
-//           }
-//         />
-
-//         <Button
-//           variant="outline"
-//           size="sm"
-//           asChild
-//           disabled={uploading}
-//         >
-//           <label htmlFor={label} className="cursor-pointer">
-//             {uploading ? (
-//               <Loader2 className="h-4 w-4 animate-spin" />
-//             ) : (
-//               <>
-//                 <UploadCloud className="h-4 w-4 mr-2" />
-//                 {uploaded ? "Change" : "Upload"}
-//               </>
-//             )}
-//           </label>
-//         </Button>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
 import { useState } from "react";
 import {
   Dialog,
@@ -365,6 +27,8 @@ export function AddDriverDialog({ open, onClose }: any) {
   const { createDriver, uploadDriverDocuments } = useDrivers();
 
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const [uploading, setUploading] = useState({
     license: false,
     tax: false,
@@ -387,121 +51,240 @@ export function AddDriverDialog({ open, onClose }: any) {
     identityCardUrl: "",
   });
 
+  /* ================= FRONTEND VALIDATION ================= */
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+
+    if (!form.firstName.trim()) e.firstName = "First name is required";
+    if (!form.lastName.trim()) e.lastName = "Last name is required";
+
+    if (!form.email) e.email = "Email is required";
+    else if (!/^\S+@\S+\.\S+$/.test(form.email))
+      e.email = "Invalid email format";
+
+    if (!form.password || form.password.length < 6)
+      e.password = "Password must be at least 6 characters";
+
+    if (!form.phoneNumber) e.phoneNumber = "Phone number is required";
+    else if (!/^\d{10}$/.test(form.phoneNumber))
+      e.phoneNumber = "Phone number must be exactly 10 digits";
+
+    if (!form.licenseNumber)
+      e.licenseNumber = "License number is required";
+
+    if (!form.licenseExpiry)
+      e.licenseExpiry = "License expiry date is required";
+
+    if (!urls.licenseUrl)
+      e.licenseUrl = "Driver license document is required";
+
+    if (!urls.taxStatusCertificateUrl)
+      e.taxStatusCertificateUrl = "Tax certificate is required";
+
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  /* ================= FILE UPLOAD ================= */
+
   const handleFileUpload = async (
     file: File,
     type: "license" | "taxStatusCertificate" | "identityCard"
   ) => {
-    const loadingKey =
+    const key =
       type === "taxStatusCertificate"
         ? "tax"
         : type === "identityCard"
         ? "identity"
         : "license";
 
-    setUploading((prev) => ({ ...prev, [loadingKey]: true }));
+    setUploading((p) => ({ ...p, [key]: true }));
 
     try {
       const fd = new FormData();
       fd.append(type, file);
       const res = await uploadDriverDocuments(fd);
+
       const urlKey = `${type}Url` as keyof typeof urls;
-      setUrls((prev) => ({ ...prev, [urlKey]: res[type].url }));
+      setUrls((p) => ({ ...p, [urlKey]: res[type].url }));
+      setErrors((e) => ({ ...e, [urlKey]: "" }));
     } finally {
-      setUploading((prev) => ({ ...prev, [loadingKey]: false }));
+      setUploading((p) => ({ ...p, [key]: false }));
     }
   };
 
+  /* ================= SUBMIT (BACKEND MESSAGE MAPPING) ================= */
+
   const submit = async () => {
+    if (!validate()) return;
+
     setLoading(true);
+    setErrors({});
+
     try {
       await createDriver({ ...form, ...urls });
       onClose();
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.message || "Something went wrong";
+
+      const mappedErrors: Record<string, string> = {};
+      const msg = message.toLowerCase();
+
+      if (msg.includes("email")) mappedErrors.email = message;
+      else if (msg.includes("phone")) mappedErrors.phoneNumber = message;
+      else if (msg.includes("password")) mappedErrors.password = message;
+      else if (msg.includes("license")) mappedErrors.licenseNumber = message;
+      else mappedErrors.general = message;
+
+      setErrors(mappedErrors);
     } finally {
       setLoading(false);
     }
   };
 
+  const update = (key: string, value: string) => {
+    setForm((f) => ({ ...f, [key]: value }));
+    setErrors((e) => ({ ...e, [key]: "" }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl h-[95vh] p-0 overflow-hidden flex flex-col">
-
-        {/* ================= HEADER ================= */}
-        <DialogHeader className="p-6 pb-2 shrink-0">
-          <div className="flex items-center gap-3">
+      <DialogContent className="max-w-2xl h-[95vh] p-0 flex flex-col overflow-hidden">
+        {/* HEADER */}
+        <DialogHeader className="p-6 pb-2">
+          <div className="flex gap-3 items-center">
             <div className="bg-primary/10 p-2 rounded-lg">
               <User className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <DialogTitle className="text-xl font-bold">Register New Driver</DialogTitle>
+              <DialogTitle className="text-xl font-bold">
+                Register New Driver
+              </DialogTitle>
               <DialogDescription>
-                Create a professional driver profile and manage legal compliance.
+                Driver onboarding & compliance verification
               </DialogDescription>
             </div>
           </div>
+
+          {errors.general && (
+            <div className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded-lg">
+              {errors.general}
+            </div>
+          )}
         </DialogHeader>
 
         <Separator />
 
-        {/* ================= SCROLLABLE BODY ================= */}
-       <ScrollArea className="flex-1 overflow-y-auto px-6">
-
+        {/* BODY */}
+        <ScrollArea className="flex-1 px-6">
           <div className="space-y-8 py-6">
-            
-            {/* 1. Personal Info Section */}
+            {/* PERSONAL INFO */}
             <section className="space-y-4">
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <IdCard className="h-4 w-4" /> Personal Information
-              </div>
-              <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100 shadow-sm">
-                <InputField label="First Name" value={form.firstName} 
-                  onChange={(v) => setForm({ ...form, firstName: v })} />
-                <InputField label="Last Name" value={form.lastName} 
-                  onChange={(v) => setForm({ ...form, lastName: v })} />
-                <InputField label="Email Address" type="email" span value={form.email} 
-                  onChange={(v) => setForm({ ...form, email: v })} />
-                <InputField label="Temporary Password" type="password" value={form.password} 
-                  onChange={(v) => setForm({ ...form, password: v })} />
-                <InputField label="Phone Number" value={form.phoneNumber} 
-                  onChange={(v) => setForm({ ...form, phoneNumber: v })} />
+              <SectionTitle icon={<IdCard className="h-4 w-4" />}>
+                Personal Information
+              </SectionTitle>
+
+              <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl">
+                <InputField
+                  label="First Name"
+                  placeholder="John"
+                  value={form.firstName}
+                  error={errors.firstName}
+                  onChange={(v) => update("firstName", v)}
+                />
+                <InputField
+                  label="Last Name"
+                  placeholder="Doe"
+                  value={form.lastName}
+                  error={errors.lastName}
+                  onChange={(v) => update("lastName", v)}
+                />
+                <InputField
+                  label="Email"
+                  placeholder="john.doe@email.com"
+                  span
+                  value={form.email}
+                  error={errors.email}
+                  onChange={(v) => update("email", v)}
+                />
+                <InputField
+                  label="Password"
+                  placeholder="••••••••"
+                  type="password"
+                  value={form.password}
+                  error={errors.password}
+                  onChange={(v) => update("password", v)}
+                />
+                <InputField
+                  label="Phone Number"
+                  placeholder="03001234567"
+                  value={form.phoneNumber}
+                  error={errors.phoneNumber}
+                  onChange={(v) => update("phoneNumber", v)}
+                />
               </div>
             </section>
 
-            {/* 2. License Details Section */}
+            {/* LICENSE */}
             <section className="space-y-4">
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <ShieldCheck className="h-4 w-4" /> Professional Credentials
-              </div>
+              <SectionTitle icon={<ShieldCheck className="h-4 w-4" />}>
+                Professional Credentials
+              </SectionTitle>
+
               <div className="grid grid-cols-2 gap-4">
-                <InputField label="License Number" value={form.licenseNumber} 
-                  onChange={(v) => setForm({ ...form, licenseNumber: v })} />
-                <InputField label="License Expiry" type="date" value={form.licenseExpiry} 
-                  onChange={(v) => setForm({ ...form, licenseExpiry: v })} />
+                <InputField
+                  label="License Number"
+                  placeholder="DL-456789123"
+                  value={form.licenseNumber}
+                  error={errors.licenseNumber}
+                  onChange={(v) => update("licenseNumber", v)}
+                />
+                <InputField
+                  label="License Expiry"
+                  type="date"
+                  value={form.licenseExpiry}
+                  error={errors.licenseExpiry}
+                  onChange={(v) => update("licenseExpiry", v)}
+                />
               </div>
             </section>
 
-            {/* 3. Documentation Section (Grid Boxes) */}
-            <section className="space-y-4 pb-4">
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <FileText className="h-4 w-4" /> Compliance Documents
-              </div>
+            {/* DOCUMENTS */}
+            <section className="space-y-4">
+              <SectionTitle icon={<FileText className="h-4 w-4" />}>
+                Compliance Documents
+              </SectionTitle>
+
+              {(errors.licenseUrl || errors.taxStatusCertificateUrl) && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 p-3 rounded-lg">
+                  {errors.licenseUrl || errors.taxStatusCertificateUrl}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
-                <DocumentUploadBox 
-                  label="Driver's License" 
-                  uploading={uploading.license} 
-                  url={urls.licenseUrl} 
-                  onUpload={(f) => handleFileUpload(f, "license")} 
+                <DocumentUploadBox
+                  label="Driver License"
+                  uploading={uploading.license}
+                  url={urls.licenseUrl}
+                  onUpload={(f) => handleFileUpload(f, "license")}
                 />
-                <DocumentUploadBox 
-                  label="Tax Status Certificate" 
-                  uploading={uploading.tax} 
-                  url={urls.taxStatusCertificateUrl} 
-                  onUpload={(f) => handleFileUpload(f, "taxStatusCertificate")} 
+                <DocumentUploadBox
+                  label="Tax Certificate"
+                  uploading={uploading.tax}
+                  url={urls.taxStatusCertificateUrl}
+                  onUpload={(f) =>
+                    handleFileUpload(f, "taxStatusCertificate")
+                  }
                 />
-                <DocumentUploadBox 
-                  label="National Identity Card" 
-                  uploading={uploading.identity} 
-                  url={urls.identityCardUrl} 
-                  onUpload={(f) => handleFileUpload(f, "identityCard")} 
+                <DocumentUploadBox
+                  label="National ID"
+                  uploading={uploading.identity}
+                  url={urls.identityCardUrl}
+                  onUpload={(f) =>
+                    handleFileUpload(f, "identityCard")
+                  }
                   span
                 />
               </div>
@@ -511,25 +294,16 @@ export function AddDriverDialog({ open, onClose }: any) {
 
         <Separator />
 
-        {/* ================= FOOTER ================= */}
-        <DialogFooter className="p-6 bg-slate-50/50 shrink-0 border-t">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
+        {/* FOOTER */}
+        <DialogFooter className="p-6 bg-slate-50">
+          <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
-          <Button
-            onClick={submit}
-            className="min-w-[180px] shadow-sm"
-            disabled={
-              loading ||
-              !urls.licenseUrl ||
-              !urls.taxStatusCertificateUrl
-            }
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              "Create Driver Account"
+          <Button onClick={submit} disabled={loading}>
+            {loading && (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             )}
+            Create Driver Account
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -537,55 +311,75 @@ export function AddDriverDialog({ open, onClose }: any) {
   );
 }
 
-/* ================= ENHANCED HELPERS ================= */
+/* ================= HELPERS ================= */
 
-function InputField({ label, value, onChange, type = "text", span }: any) {
+function SectionTitle({ icon, children }: any) {
+  return (
+    <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+      {icon} {children}
+    </div>
+  );
+}
+
+function InputField({
+  label,
+  value,
+  onChange,
+  type = "text",
+  span,
+  error,
+  placeholder,
+}: any) {
   return (
     <div className={`space-y-1.5 ${span ? "col-span-2" : ""}`}>
-      <Label className="text-xs font-semibold text-slate-700">{label}</Label>
+      <Label className="text-xs font-semibold">{label}</Label>
+      {error && <p className="text-xs text-red-600">{error}</p>}
       <Input
         type={type}
         value={value}
+        placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="focus-visible:ring-primary bg-white shadow-sm h-9"
+        className={`h-9 ${error ? "border-red-500" : ""}`}
       />
     </div>
   );
 }
 
-function DocumentUploadBox({ label, uploading, url, onUpload, span }: any) {
+function DocumentUploadBox({
+  label,
+  uploading,
+  url,
+  onUpload,
+  span,
+}: any) {
   return (
-    <div className={`relative border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center gap-2 transition-all hover:border-primary/50 hover:bg-primary/5 bg-white group ${span ? "col-span-2" : ""}`}>
-      <Input 
-        type="file" 
-        accept="application/pdf" 
-        className="absolute inset-0 opacity-0 cursor-pointer z-10" 
-        disabled={uploading} 
-        onChange={(e) => e.target.files && onUpload(e.target.files[0])} 
+    <div
+      className={`relative border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center gap-2 bg-white transition-all ${
+        span ? "col-span-2" : ""
+      }`}
+    >
+      <Input
+        type="file"
+        accept="application/pdf"
+        className="absolute inset-0 opacity-0 cursor-pointer"
+        disabled={uploading}
+        onChange={(e) =>
+          e.target.files && onUpload(e.target.files[0])
+        }
       />
-      
-      <div className={`p-3 rounded-full transition-colors ${url ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-50 text-slate-400 group-hover:text-primary'}`}>
-        {uploading ? (
-          <Loader2 className="h-6 w-6 animate-spin" />
-        ) : url ? (
-          <CheckCircle2 className="h-6 w-6" />
-        ) : (
-          <UploadCloud className="h-6 w-6" />
-        )}
-      </div>
 
-      <div className="text-center">
-        <p className="text-sm font-bold text-slate-700">{label}</p>
-        <p className={`text-[11px] font-medium mt-0.5 ${url ? 'text-emerald-600' : 'text-slate-500'}`}>
-          {url ? "✓ PDF Document Uploaded" : "Tap to upload or drag PDF"}
-        </p>
-      </div>
-
-      {url && (
-        <div className="absolute top-2 right-2 z-20">
-            <span className="bg-emerald-500 h-2 w-2 rounded-full block animate-pulse" />
-        </div>
+      {uploading ? (
+        <Loader2 className="h-6 w-6 animate-spin" />
+      ) : url ? (
+        <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+      ) : (
+        <UploadCloud className="h-6 w-6 text-slate-400" />
       )}
+
+      <p className="text-sm font-semibold">{label}</p>
+      <p className="text-xs text-slate-500">
+        {url ? "PDF uploaded" : "Upload PDF"}
+      </p>
     </div>
   );
 }
