@@ -1,5 +1,7 @@
 
+
 import { useState, useMemo, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -54,6 +56,7 @@ const EMPTY_FORM = {
 };
 
 export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: () => void; }) {
+  const { t } = useTranslation();
   const { trucks } = useTrucks();
   const { drivers } = useDrivers();
   const { mutateAsync, isPending } = useCreateTrip();
@@ -98,8 +101,8 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.originLocation || !form.destinationLocation) return alert("Select locations on map");
-    if (!form.originPickupTime || !form.destinationDeliveryTime) return alert("Times required");
+    if (!form.originLocation || !form.destinationLocation) return alert(t('validation.selectLocation'));
+    if (!form.originPickupTime || !form.destinationDeliveryTime) return alert(t('validation.timesRequired'));
 
     const payload = {
       ...form,
@@ -122,42 +125,42 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[95vh] p-0 overflow-hidden flex flex-col">
+       <DialogContent className="max-w-2xl h-[90vh] p-0 flex flex-col overflow-hidden">
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 p-2 rounded-lg">
               <Navigation2 className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <DialogTitle className="text-xl">Create New Logistics Trip</DialogTitle>
-              <DialogDescription>Schedule routes, assign assets, and upload cargo documentation.</DialogDescription>
+              <DialogTitle className="text-xl">{t('trips.createNewTrip')}</DialogTitle>
+              <DialogDescription>{t('trips.scheduleRoutes')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <Separator />
 
-        <ScrollArea className="flex-1 overflow-y-auto px-6">
+        <ScrollArea className="flex-1 px-6">
           <form id="trip-form" onSubmit={handleSubmit} className="py-6 space-y-8">
             
             {/* 1. ROUTE & MAP SECTION */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <MapPin className="h-4 w-4" /> Route Information
+                <MapPin className="h-4 w-4" /> {t('trips.routeInfo')}
               </div>
               <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <div className="space-y-2">
-                  <Label>Origin Address</Label>
-                  <Input placeholder="Loading dock / Warehouse" value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} required />
+                  <Label>{t('trips.originAddress')}</Label>
+                  <Input placeholder={t('trips.loadingDock')} value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} required />
                   <Button type="button" size="sm" variant={mapMode === "origin" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("origin")}>
-                    {form.originLocation ? "✓ Origin Pinned" : "Pin Origin on Map"}
+                    {form.originLocation ? t('trips.originPinned') : t('trips.pinOrigin')}
                   </Button>
                 </div>
                 <div className="space-y-2">
-                  <Label>Destination Address</Label>
-                  <Input placeholder="Delivery point" value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })} required />
+                  <Label>{t('trips.destinationAddress')}</Label>
+                  <Input placeholder={t('trips.deliveryPoint')} value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })} required />
                   <Button type="button" size="sm" variant={mapMode === "destination" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("destination")}>
-                    {form.destinationLocation ? "✓ Destination Pinned" : "Pin Destination on Map"}
+                    {form.destinationLocation ? t('trips.destinationPinned') : t('trips.pinDestination')}
                   </Button>
                 </div>
               </div>
@@ -165,8 +168,12 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
               {mapMode && (
                 <div className="border rounded-lg overflow-hidden animate-in fade-in zoom-in duration-200">
                   <div className="bg-slate-900 text-white p-2 flex justify-between items-center px-4">
-                    <span className="text-xs font-medium uppercase">Selecting {mapMode}...</span>
-                    <Button type="button" variant="ghost" size="sm" className="h-7 text-white hover:bg-white/20" onClick={() => setMapMode(null)}>Close Map</Button>
+                    <span className="text-xs font-medium uppercase">
+                      {mapMode === "origin" ? t('trips.selectingOrigin') : t('trips.selectingDestination')}
+                    </span>
+                    <Button type="button" variant="ghost" size="sm" className="h-7 text-white hover:bg-white/20" onClick={() => setMapMode(null)}>
+                      {t('trips.closeMap')}
+                    </Button>
                   </div>
                   <LargeMapPicker mode={mapMode} existingLocations={{ origin: form.originLocation, destination: form.destinationLocation }} 
                     onSelect={(loc) => setForm((prev: any) => ({ ...prev, [`${mapMode}Location`]: loc }))} />
@@ -178,15 +185,15 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
             <section className="grid grid-cols-2 gap-8">
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                  <Calendar className="h-4 w-4" /> Schedule
+                  <Calendar className="h-4 w-4" /> {t('trips.schedule')}
                 </div>
                 <div className="space-y-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Pickup Time</Label>
+                    <Label className="text-xs">{t('trips.pickupTime')}</Label>
                     <Input type="datetime-local" value={form.originPickupTime} onChange={(e) => setForm({ ...form, originPickupTime: e.target.value })} required />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Estimated Delivery</Label>
+                    <Label className="text-xs">{t('trips.estimatedDelivery')}</Label>
                     <Input type="datetime-local" value={form.destinationDeliveryTime} onChange={(e) => setForm({ ...form, destinationDeliveryTime: e.target.value })} required />
                   </div>
                 </div>
@@ -194,21 +201,21 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
 
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                  <Package className="h-4 w-4" /> Cargo Details
+                  <Package className="h-4 w-4" /> {t('trips.cargoDetails')}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Weight (kg)</Label>
+                    <Label className="text-xs">{t('trips.weight')}</Label>
                     <Input type="number" placeholder="0.00" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} required />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Est. Hours</Label>
+                    <Label className="text-xs">{t('trips.estimatedHours')}</Label>
                     <Input type="number" placeholder="Duration" value={form.estimatedHours} onChange={(e) => setForm({ ...form, estimatedHours: e.target.value })} required />
                   </div>
                 </div>
                 <div className="space-y-1.5">
                     <Label className="text-xs">Description</Label>
-                    <textarea placeholder="Specify cargo type..." value={form.cargoDescription} onChange={(e) => setForm({ ...form, cargoDescription: e.target.value })} 
+                    <textarea placeholder={t('trips.cargoDescription')} value={form.cargoDescription} onChange={(e) => setForm({ ...form, cargoDescription: e.target.value })} 
                       className="w-full text-sm rounded-md border border-input p-2 h-[82px] focus-visible:ring-1 focus-visible:ring-ring outline-none" required />
                 </div>
               </div>
@@ -217,22 +224,22 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
             {/* 3. ASSET ASSIGNMENT */}
             <section className="space-y-4">
               <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <Truck className="h-4 w-4" /> Asset Assignment
+                <Truck className="h-4 w-4" /> {t('trips.assetAssignment')}
               </div>
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label>Assigned Truck</Label>
+                  <Label>{t('trips.assignedTruck')}</Label>
                   <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
-                    <SelectTrigger className="bg-white"><SelectValue placeholder="Search available trucks..." /></SelectTrigger>
+                    <SelectTrigger className="bg-white"><SelectValue placeholder={t('trips.searchTrucks')} /></SelectTrigger>
                     <SelectContent>
                       {availableTrucks.map((t: any) => (<SelectItem key={t._id} value={t._id}>{t.licensePlate} </SelectItem>))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Assigned Driver</Label>
+                  <Label>{t('trips.assignedDriver')}</Label>
                   <Select onValueChange={(v) => { setForm({ ...form, driverId: v }); setDriverError(null); }}>
-                    <SelectTrigger className="bg-white"><SelectValue placeholder="Search active drivers..." /></SelectTrigger>
+                    <SelectTrigger className="bg-white"><SelectValue placeholder={t('trips.searchDrivers')} /></SelectTrigger>
                     <SelectContent>
                       {availableDrivers.map((d: any) => (<SelectItem key={d._id} value={d._id}>{d.firstName} {d.lastName}({d.status})</SelectItem>))}
                     </SelectContent>
@@ -245,11 +252,25 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
             {/* 4. DOCUMENTATION */}
             <section className="space-y-4 pb-4">
               <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <FileCheck className="h-4 w-4" /> Documentation
+                <FileCheck className="h-4 w-4" /> {t('trips.documentation')}
               </div>
               <div className="grid grid-cols-2 gap-4">
-                 <InvoiceUploadBox label="Primary Invoice" uploading={uploadingInvoice1} url={invoice1Url} onUpload={(f) => uploadInvoice(f, "invoice1")} />
-                 <InvoiceUploadBox label="Secondary Invoice" uploading={uploadingInvoice2} url={invoice2Url} onUpload={(f) => uploadInvoice(f, "invoice2")} />
+                 <InvoiceUploadBox 
+                   label={t('trips.primaryInvoice')} 
+                   uploading={uploadingInvoice1} 
+                   url={invoice1Url} 
+                   onUpload={(f) => uploadInvoice(f, "invoice1")} 
+                   uploadText={t('trips.clickToUpload')}
+                   uploadedText={t('trips.uploaded')}
+                 />
+                 <InvoiceUploadBox 
+                   label={t('trips.secondaryInvoice')} 
+                   uploading={uploadingInvoice2} 
+                   url={invoice2Url} 
+                   onUpload={(f) => uploadInvoice(f, "invoice2")} 
+                   uploadText={t('trips.clickToUpload')}
+                   uploadedText={t('trips.uploaded')}
+                 />
               </div>
             </section>
           </form>
@@ -258,10 +279,12 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
         <Separator />
 
         <DialogFooter className="p-6 bg-slate-50/50 border-t">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>Cancel</Button>
+          <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
+            {t('common.cancel')}
+          </Button>
           <Button form="trip-form" type="submit" className="min-w-[150px]" disabled={isPending}>
             {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Schedule Trip
+            {t('trips.scheduleTrip')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -269,14 +292,14 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
   );
 }
 
-function InvoiceUploadBox({ label, uploading, url, onUpload }: any) {
+function InvoiceUploadBox({ label, uploading, url, onUpload, uploadText, uploadedText }: any) {
   return (
     <div className="relative border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors hover:border-primary/50 bg-white">
       <Input type="file" accept="application/pdf" className="absolute inset-0 opacity-0 cursor-pointer" disabled={uploading} onChange={(e) => e.target.files && onUpload(e.target.files[0])} />
       {uploading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> : <FileCheck className={`h-5 w-5 ${url ? 'text-emerald-500' : 'text-slate-400'}`} />}
       <div className="text-center">
         <p className="text-xs font-semibold">{label}</p>
-        <p className="text-[10px] text-muted-foreground">{url ? "✓ Uploaded" : "Click to upload PDF"}</p>
+        <p className="text-[10px] text-muted-foreground">{url ? uploadedText : uploadText}</p>
       </div>
     </div>
   );

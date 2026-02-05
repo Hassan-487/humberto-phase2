@@ -1,4 +1,7 @@
+
+
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
   Clock,
@@ -49,22 +52,22 @@ const getSeverityStyles = (severity: string) => {
 };
 
 export default function Alerts() {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const { data: alerts = [], isLoading } = useAlerts();
   const resolveMutation = useResolveAlert();
 
- const filteredAlerts = alerts.filter((a) => {
-  const driverName = a.driver
-    ? `${a.driver.firstName} ${a.driver.lastName}`.toLowerCase()
-    : '';
+  const filteredAlerts = alerts.filter((a) => {
+    const driverName = a.driver
+      ? `${a.driver.firstName} ${a.driver.lastName}`.toLowerCase()
+      : '';
 
-  return (
-    a.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    a.truck?.licensePlate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driverName.includes(searchTerm.toLowerCase())
-  );
-});
-
+    return (
+      a.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.truck?.licensePlate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      driverName.includes(searchTerm.toLowerCase())
+    );
+  });
 
   if (isLoading) {
     return (
@@ -76,10 +79,10 @@ export default function Alerts() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Alerts</h2>
+      <h2 className="text-2xl font-bold">{t('alerts.title')}</h2>
 
       <Input
-        placeholder="Search by truck, driver or message"
+        placeholder={t('alerts.searchPlaceholder')}
         className="max-w-md"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -111,11 +114,11 @@ export default function Alerts() {
                       {alert.truck.licensePlate}
                     </span>
                     <span className="flex items-center gap-1">
-                     <User className="h-3 w-3" />
-                       {alert.driver
-                      ? `${alert.driver.firstName} ${alert.driver.lastName}`
-                       : 'Unassigned'}
-                        </span>
+                      <User className="h-3 w-3" />
+                      {alert.driver
+                        ? `${alert.driver.firstName} ${alert.driver.lastName}`
+                        : t('drivers.unassigned')}
+                    </span>
 
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -133,10 +136,7 @@ export default function Alerts() {
                     {resolveMutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <>
-                        
-                        Resolve
-                      </>
+                      t('alerts.resolve')
                     )}
                   </Button>
                 )}
@@ -147,7 +147,7 @@ export default function Alerts() {
 
         {filteredAlerts.length === 0 && (
           <div className="text-center text-muted-foreground py-10">
-            No alerts found
+            {t('alerts.noAlerts')}
           </div>
         )}
       </div>

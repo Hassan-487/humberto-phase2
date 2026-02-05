@@ -23,18 +23,12 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      console.log('🔐 Attempting login for:', email);
       
-      // Call login from auth context (which calls authService internally)
       const user = await login(email, password);
       
-      console.log('✅ Login successful, user:', user);
-      console.log('👤 User role:', user.role);
 
       // Route based on role
       if (user.role === 'driver') {
-        console.log('📍 Navigating to driver dashboard');
-        
         toast({
           title: 'Welcome back!',
           description: 'Redirecting to driver dashboard...',
@@ -42,7 +36,6 @@ export default function Login() {
         
         navigate('/driver/dashboard', { replace: true });
       } else {
-        console.log('📍 Navigating to admin dashboard');
         
         toast({
           title: 'Welcome back!',
@@ -52,7 +45,7 @@ export default function Login() {
         navigate('/dashboard', { replace: true });
       }
     } catch (err: any) {
-      console.error('❌ Login error:', err);
+      console.error(' Login error:', err);
       const errorMessage = err.response?.data?.message || err.message || 'Invalid email or password';
       setError(errorMessage);
       toast({

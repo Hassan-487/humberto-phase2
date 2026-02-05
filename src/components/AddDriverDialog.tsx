@@ -1,4 +1,7 @@
+
+
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 export function AddDriverDialog({ open, onClose }: any) {
+  const { t } = useTranslation();
   const { createDriver, uploadDriverDocuments } = useDrivers();
 
   const [loading, setLoading] = useState(false);
@@ -56,31 +60,31 @@ export function AddDriverDialog({ open, onClose }: any) {
   const validate = () => {
     const e: Record<string, string> = {};
 
-    if (!form.firstName.trim()) e.firstName = "First name is required";
-    if (!form.lastName.trim()) e.lastName = "Last name is required";
+    if (!form.firstName.trim()) e.firstName = t('validation.required');
+    if (!form.lastName.trim()) e.lastName = t('validation.required');
 
-    if (!form.email) e.email = "Email is required";
+    if (!form.email) e.email = t('validation.required');
     else if (!/^\S+@\S+\.\S+$/.test(form.email))
-      e.email = "Invalid email format";
+      e.email = t('validation.emailInvalid');
 
     if (!form.password || form.password.length < 6)
-      e.password = "Password must be at least 6 characters";
+      e.password = t('validation.passwordMin');
 
-    if (!form.phoneNumber) e.phoneNumber = "Phone number is required";
-    else if (!/^\d{10}$/.test(form.phoneNumber))
-      e.phoneNumber = "Phone number must be exactly 10 digits";
+    if (!form.phoneNumber) e.phoneNumber = t('validation.required');
+    else if (!/^\d{10,14}$/.test(form.phoneNumber))
+      e.phoneNumber = t('validation.phoneInvalid');
 
     if (!form.licenseNumber)
-      e.licenseNumber = "License number is required";
+      e.licenseNumber = t('validation.licenseRequired');
 
     if (!form.licenseExpiry)
-      e.licenseExpiry = "License expiry date is required";
+      e.licenseExpiry = t('validation.expiryRequired');
 
     if (!urls.licenseUrl)
-      e.licenseUrl = "Driver license document is required";
+      e.licenseUrl = t('validation.documentRequired');
 
     if (!urls.taxStatusCertificateUrl)
-      e.taxStatusCertificateUrl = "Tax certificate is required";
+      e.taxStatusCertificateUrl = t('validation.documentRequired');
 
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -160,10 +164,10 @@ export function AddDriverDialog({ open, onClose }: any) {
             </div>
             <div>
               <DialogTitle className="text-xl font-bold">
-                Register New Driver
+                {t('drivers.registerNewDriver')}
               </DialogTitle>
               <DialogDescription>
-                Driver onboarding & compliance verification
+                {t('drivers.driverOnboarding')}
               </DialogDescription>
             </div>
           </div>
@@ -183,26 +187,26 @@ export function AddDriverDialog({ open, onClose }: any) {
             {/* PERSONAL INFO */}
             <section className="space-y-4">
               <SectionTitle icon={<IdCard className="h-4 w-4" />}>
-                Personal Information
+                {t('drivers.personalInfo')}
               </SectionTitle>
 
               <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl">
                 <InputField
-                  label="First Name"
+                  label={t('drivers.firstName')}
                   placeholder="John"
                   value={form.firstName}
                   error={errors.firstName}
                   onChange={(v) => update("firstName", v)}
                 />
                 <InputField
-                  label="Last Name"
+                  label={t('drivers.lastName')}
                   placeholder="Doe"
                   value={form.lastName}
                   error={errors.lastName}
                   onChange={(v) => update("lastName", v)}
                 />
                 <InputField
-                  label="Email"
+                  label={t('drivers.email')}
                   placeholder="john.doe@email.com"
                   span
                   value={form.email}
@@ -210,7 +214,7 @@ export function AddDriverDialog({ open, onClose }: any) {
                   onChange={(v) => update("email", v)}
                 />
                 <InputField
-                  label="Password"
+                  label={t('drivers.password')}
                   placeholder="••••••••"
                   type="password"
                   value={form.password}
@@ -218,7 +222,7 @@ export function AddDriverDialog({ open, onClose }: any) {
                   onChange={(v) => update("password", v)}
                 />
                 <InputField
-                  label="Phone Number"
+                  label={t('drivers.phoneNumber')}
                   placeholder="03001234567"
                   value={form.phoneNumber}
                   error={errors.phoneNumber}
@@ -230,19 +234,19 @@ export function AddDriverDialog({ open, onClose }: any) {
             {/* LICENSE */}
             <section className="space-y-4">
               <SectionTitle icon={<ShieldCheck className="h-4 w-4" />}>
-                Professional Credentials
+                {t('drivers.professionalCredentials')}
               </SectionTitle>
 
               <div className="grid grid-cols-2 gap-4">
                 <InputField
-                  label="License Number"
+                  label={t('drivers.licenseNumber')}
                   placeholder="DL-456789123"
                   value={form.licenseNumber}
                   error={errors.licenseNumber}
                   onChange={(v) => update("licenseNumber", v)}
                 />
                 <InputField
-                  label="License Expiry"
+                  label={t('drivers.licenseExpiry')}
                   type="date"
                   value={form.licenseExpiry}
                   error={errors.licenseExpiry}
@@ -254,7 +258,7 @@ export function AddDriverDialog({ open, onClose }: any) {
             {/* DOCUMENTS */}
             <section className="space-y-4">
               <SectionTitle icon={<FileText className="h-4 w-4" />}>
-                Compliance Documents
+                {t('drivers.complianceDocuments')}
               </SectionTitle>
 
               {(errors.licenseUrl || errors.taxStatusCertificateUrl) && (
@@ -265,26 +269,32 @@ export function AddDriverDialog({ open, onClose }: any) {
 
               <div className="grid grid-cols-2 gap-4">
                 <DocumentUploadBox
-                  label="Driver License"
+                  label={t('drivers.driverLicense')}
                   uploading={uploading.license}
                   url={urls.licenseUrl}
                   onUpload={(f) => handleFileUpload(f, "license")}
+                  uploadText={t('drivers.uploadPdf')}
+                  uploadedText={t('drivers.pdfUploaded')}
                 />
                 <DocumentUploadBox
-                  label="Tax Certificate"
+                  label={t('drivers.taxCertificate')}
                   uploading={uploading.tax}
                   url={urls.taxStatusCertificateUrl}
                   onUpload={(f) =>
                     handleFileUpload(f, "taxStatusCertificate")
                   }
+                  uploadText={t('drivers.uploadPdf')}
+                  uploadedText={t('drivers.pdfUploaded')}
                 />
                 <DocumentUploadBox
-                  label="National ID"
+                  label={t('drivers.nationalId')}
                   uploading={uploading.identity}
                   url={urls.identityCardUrl}
                   onUpload={(f) =>
                     handleFileUpload(f, "identityCard")
                   }
+                  uploadText={t('drivers.uploadPdf')}
+                  uploadedText={t('drivers.pdfUploaded')}
                   span
                 />
               </div>
@@ -297,13 +307,13 @@ export function AddDriverDialog({ open, onClose }: any) {
         {/* FOOTER */}
         <DialogFooter className="p-6 bg-slate-50">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={submit} disabled={loading}>
             {loading && (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             )}
-            Create Driver Account
+            {t('drivers.createDriverAccount')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -351,6 +361,8 @@ function DocumentUploadBox({
   url,
   onUpload,
   span,
+  uploadText,
+  uploadedText,
 }: any) {
   return (
     <div
@@ -378,7 +390,7 @@ function DocumentUploadBox({
 
       <p className="text-sm font-semibold">{label}</p>
       <p className="text-xs text-slate-500">
-        {url ? "PDF uploaded" : "Upload PDF"}
+        {url ? uploadedText : uploadText}
       </p>
     </div>
   );

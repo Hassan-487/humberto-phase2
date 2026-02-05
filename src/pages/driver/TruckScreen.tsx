@@ -1,33 +1,236 @@
+// import { AppLayout } from '@/components/layout/Driverlayout/AppLayout';
+// import { PageHeader } from '@/components/layout/Driverlayout/PageHeader';
+// import { useInTransitTrip, useAssignedTrips } from '@/hooks/usedriverportal';
+// import { 
+//   Truck, 
+//   Gauge, 
+//   Fuel, 
+//   Wrench, 
+//   Calendar,
+//   CheckCircle2,
+//   AlertCircle,
+//   Loader2
+// } from 'lucide-react';
+// import { cn } from '@/lib/utils';
+
+// const TruckScreen = () => {
+//   const { data: inTransitTrip, isLoading: loadingTransit } = useInTransitTrip();
+//   const { data: assignedTrips = [], isLoading: loadingAssigned } = useAssignedTrips();
+
+//   // Get truck from in-transit trip or first assigned trip
+//   const truck = inTransitTrip?.truck || assignedTrips[0]?.truck;
+//   const isLoading = loadingTransit || loadingAssigned;
+
+//   if (isLoading) {
+//     return (
+//       <AppLayout>
+//         <PageHeader title="My Truck" />
+//         <div className="px-4 py-12 text-center">
+//           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+//           <p className="text-muted-foreground mt-4">Loading truck details...</p>
+//         </div>
+//       </AppLayout>
+//     );
+//   }
+
+//   if (!truck) {
+//     return (
+//       <AppLayout>
+//         <PageHeader title="My Truck" />
+//         <div className="px-4 py-12 text-center space-y-4">
+//           <Truck className="w-16 h-16 mx-auto text-muted-foreground" />
+//           <div>
+//             <p className="font-medium">No Truck Assigned</p>
+//             <p className="text-sm text-muted-foreground mt-1">
+//               A truck will be assigned when you have a trip
+//             </p>
+//           </div>
+//         </div>
+//       </AppLayout>
+//     );
+//   }
+
+//   // Determine truck status based on trip status
+//   const getTruckStatus = () => {
+//     if (inTransitTrip) {
+//       return { 
+//         status: 'active' as const, 
+//         label: 'Active', 
+//         color: 'bg-success text-success-foreground' 
+//       };
+//     }
+//     if (assignedTrips.length > 0) {
+//       return { 
+//         status: 'idle' as const, 
+//         label: 'Assigned', 
+//         color: 'bg-primary/20 text-primary' 
+//       };
+//     }
+//     return { 
+//       status: 'idle' as const, 
+//       label: 'Idle', 
+//       color: 'bg-muted text-muted-foreground' 
+//     };
+//   };
+
+//   const truckStatus = getTruckStatus();
+  
+//   // Mock fuel level (you can add this to your API later)
+//   const fuelLevel = 75;
+
+//   return (
+//     <AppLayout>
+//       <PageHeader title="My Truck" />
+      
+//       <div className="px-4 pb-6 space-y-5">
+//         {/* Truck Card */}
+//         <div className="card-elevated p-5 text-center">
+//           <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+//             <Truck className="w-10 h-10 text-primary" />
+//           </div>
+//           <h2 className="text-2xl font-bold">{truck.plate}</h2>
+//           <p className="text-muted-foreground">{truck.model}</p>
+//           <span className={cn(
+//             'inline-block mt-3 px-4 py-1.5 rounded-full text-sm font-medium',
+//             truckStatus.color
+//           )}>
+//             {truckStatus.label}
+//           </span>
+//         </div>
+
+//         {/* Current Trip Info (if active) */}
+//         {inTransitTrip && (
+//           <div className="card-elevated p-4">
+//             <h3 className="font-semibold mb-3">Current Trip</h3>
+//             <div className="space-y-2">
+//               <div className="flex items-center justify-between text-sm">
+//                 <span className="text-muted-foreground">Trip Number</span>
+//                 <span className="font-medium">{inTransitTrip.tripNumber}</span>
+//               </div>
+//               <div className="flex items-center justify-between text-sm">
+//                 <span className="text-muted-foreground">From</span>
+//                 <span className="font-medium">{inTransitTrip.origin}</span>
+//               </div>
+//               <div className="flex items-center justify-between text-sm">
+//                 <span className="text-muted-foreground">To</span>
+//                 <span className="font-medium">{inTransitTrip.destination}</span>
+//               </div>
+//               <div className="flex items-center justify-between text-sm">
+//                 <span className="text-muted-foreground">Cargo Description</span>
+//                 <span className="font-medium">{inTransitTrip.cargo}</span>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Fuel Level
+//         <div className="card-elevated p-4">
+//           <div className="flex items-center justify-between mb-3">
+//             <h3 className="font-semibold flex items-center gap-2">
+//               <Fuel className="w-4 h-4" />
+//               Fuel Level
+//             </h3>
+//             <span className="font-bold text-lg">{fuelLevel}%</span>
+//           </div>
+//           <div className="h-3 bg-muted rounded-full overflow-hidden">
+//             <div 
+//               className={cn(
+//                 'h-full rounded-full transition-all',
+//                 fuelLevel > 50 ? 'bg-success' : 
+//                 fuelLevel > 25 ? 'bg-warning' : 'bg-destructive'
+//               )}
+//               style={{ width: `${fuelLevel}%` }}
+//             />
+//           </div>
+//           <p className="text-xs text-muted-foreground mt-2">
+//             {fuelLevel > 25 ? (
+//               <span className="flex items-center gap-1 text-success">
+//                 <CheckCircle2 className="w-3 h-3" />
+//                 Fuel level is adequate
+//               </span>
+//             ) : (
+//               <span className="flex items-center gap-1 text-destructive">
+//                 <AlertCircle className="w-3 h-3" />
+//                 Refuel soon
+//               </span>
+//             )}
+//           </p>
+//         </div> */}
+
+//         {/* Truck Details */}
+//         <div className="card-elevated p-4">
+//           <h3 className="font-semibold mb-4">Vehicle Details</h3>
+//           <div className="space-y-4">
+//             <div className="flex items-center justify-between py-2 border-b border-border/50">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+//                   <Truck className="w-4 h-4 text-muted-foreground" />
+//                 </div>
+//                 <span className="text-muted-foreground">License Plate</span>
+//               </div>
+//               <span className="font-medium">{truck.plate}</span>
+//             </div>
+            
+//             <div className="flex items-center justify-between py-2 border-b border-border/50">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+//                   <Gauge className="w-4 h-4 text-muted-foreground" />
+//                 </div>
+//                 <span className="text-muted-foreground">Model</span>
+//               </div>
+//               <span className="font-medium">{truck.model}</span>
+//             </div>
+            
+//             <div className="flex items-center justify-between py-2">
+//               <div className="flex items-center gap-3">
+//                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
+//                   <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
+//                 </div>
+//                 <span className="text-muted-foreground">Status</span>
+//               </div>
+//               <span className="font-medium">{truckStatus.label}</span>
+//             </div>
+//           </div>
+//         </div>
+
+        
+//       </div>
+//     </AppLayout>
+//   );
+// };
+
+// export default TruckScreen;
+
+
 import { AppLayout } from '@/components/layout/Driverlayout/AppLayout';
 import { PageHeader } from '@/components/layout/Driverlayout/PageHeader';
 import { useInTransitTrip, useAssignedTrips } from '@/hooks/usedriverportal';
-import { 
-  Truck, 
-  Gauge, 
-  Fuel, 
-  Wrench, 
-  Calendar,
+import {
+  Truck,
+  Gauge,
   CheckCircle2,
-  AlertCircle,
-  Loader2
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 const TruckScreen = () => {
   const { data: inTransitTrip, isLoading: loadingTransit } = useInTransitTrip();
   const { data: assignedTrips = [], isLoading: loadingAssigned } = useAssignedTrips();
+  const { t } = useTranslation();
 
-  // Get truck from in-transit trip or first assigned trip
   const truck = inTransitTrip?.truck || assignedTrips[0]?.truck;
   const isLoading = loadingTransit || loadingAssigned;
 
   if (isLoading) {
     return (
       <AppLayout>
-        <PageHeader title="My Truck" />
+        <PageHeader title={t("driverTruck.title")} />
         <div className="px-4 py-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground mt-4">Loading truck details...</p>
+          <p className="text-muted-foreground mt-4">
+            {t("driverTruck.loading")}
+          </p>
         </div>
       </AppLayout>
     );
@@ -36,13 +239,15 @@ const TruckScreen = () => {
   if (!truck) {
     return (
       <AppLayout>
-        <PageHeader title="My Truck" />
+        <PageHeader title={t("driverTruck.title")} />
         <div className="px-4 py-12 text-center space-y-4">
           <Truck className="w-16 h-16 mx-auto text-muted-foreground" />
           <div>
-            <p className="font-medium">No Truck Assigned</p>
+            <p className="font-medium">
+              {t("driverTruck.noTruckTitle")}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
-              A truck will be assigned when you have a trip
+              {t("driverTruck.noTruckDesc")}
             </p>
           </div>
         </div>
@@ -50,38 +255,31 @@ const TruckScreen = () => {
     );
   }
 
-  // Determine truck status based on trip status
   const getTruckStatus = () => {
     if (inTransitTrip) {
-      return { 
-        status: 'active' as const, 
-        label: 'Active', 
-        color: 'bg-success text-success-foreground' 
+      return {
+        label: t("driverTruck.status.active"),
+        color: 'bg-success text-success-foreground',
       };
     }
     if (assignedTrips.length > 0) {
-      return { 
-        status: 'idle' as const, 
-        label: 'Assigned', 
-        color: 'bg-primary/20 text-primary' 
+      return {
+        label: t("driverTruck.status.assigned"),
+        color: 'bg-primary/20 text-primary',
       };
     }
-    return { 
-      status: 'idle' as const, 
-      label: 'Idle', 
-      color: 'bg-muted text-muted-foreground' 
+    return {
+      label: t("driverTruck.status.idle"),
+      color: 'bg-muted text-muted-foreground',
     };
   };
 
   const truckStatus = getTruckStatus();
-  
-  // Mock fuel level (you can add this to your API later)
-  const fuelLevel = 75;
 
   return (
     <AppLayout>
-      <PageHeader title="My Truck" />
-      
+      <PageHeader title={t("driverTruck.title")} />
+
       <div className="px-4 pb-6 space-y-5">
         {/* Truck Card */}
         <div className="card-elevated p-5 text-center">
@@ -90,110 +288,105 @@ const TruckScreen = () => {
           </div>
           <h2 className="text-2xl font-bold">{truck.plate}</h2>
           <p className="text-muted-foreground">{truck.model}</p>
-          <span className={cn(
-            'inline-block mt-3 px-4 py-1.5 rounded-full text-sm font-medium',
-            truckStatus.color
-          )}>
+          <span
+            className={cn(
+              'inline-block mt-3 px-4 py-1.5 rounded-full text-sm font-medium',
+              truckStatus.color
+            )}
+          >
             {truckStatus.label}
           </span>
         </div>
 
-        {/* Current Trip Info (if active) */}
+        {/* Current Trip */}
         {inTransitTrip && (
           <div className="card-elevated p-4">
-            <h3 className="font-semibold mb-3">Current Trip</h3>
+            <h3 className="font-semibold mb-3">
+              {t("driverTruck.currentTrip")}
+            </h3>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Trip Number</span>
-                <span className="font-medium">{inTransitTrip.tripNumber}</span>
+                <span className="text-muted-foreground">
+                  {t("driverTruck.tripNumber")}
+                </span>
+                <span className="font-medium">
+                  {inTransitTrip.tripNumber}
+                </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">From</span>
-                <span className="font-medium">{inTransitTrip.origin}</span>
+                <span className="text-muted-foreground">
+                  {t("driverTruck.from")}
+                </span>
+                <span className="font-medium">
+                  {inTransitTrip.origin}
+                </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">To</span>
-                <span className="font-medium">{inTransitTrip.destination}</span>
+                <span className="text-muted-foreground">
+                  {t("driverTruck.to")}
+                </span>
+                <span className="font-medium">
+                  {inTransitTrip.destination}
+                </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Cargo Description</span>
-                <span className="font-medium">{inTransitTrip.cargo}</span>
+                <span className="text-muted-foreground">
+                  {t("driverTruck.cargo")}
+                </span>
+                <span className="font-medium">
+                  {inTransitTrip.cargo}
+                </span>
               </div>
             </div>
           </div>
         )}
 
-        {/* Fuel Level
+        {/* Vehicle Details */}
         <div className="card-elevated p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Fuel className="w-4 h-4" />
-              Fuel Level
-            </h3>
-            <span className="font-bold text-lg">{fuelLevel}%</span>
-          </div>
-          <div className="h-3 bg-muted rounded-full overflow-hidden">
-            <div 
-              className={cn(
-                'h-full rounded-full transition-all',
-                fuelLevel > 50 ? 'bg-success' : 
-                fuelLevel > 25 ? 'bg-warning' : 'bg-destructive'
-              )}
-              style={{ width: `${fuelLevel}%` }}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            {fuelLevel > 25 ? (
-              <span className="flex items-center gap-1 text-success">
-                <CheckCircle2 className="w-3 h-3" />
-                Fuel level is adequate
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-destructive">
-                <AlertCircle className="w-3 h-3" />
-                Refuel soon
-              </span>
-            )}
-          </p>
-        </div> */}
+          <h3 className="font-semibold mb-4">
+            {t("driverTruck.vehicleDetails")}
+          </h3>
 
-        {/* Truck Details */}
-        <div className="card-elevated p-4">
-          <h3 className="font-semibold mb-4">Vehicle Details</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2 border-b border-border/50">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
                   <Truck className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <span className="text-muted-foreground">License Plate</span>
+                <span className="text-muted-foreground">
+                  {t("driverTruck.licensePlate")}
+                </span>
               </div>
               <span className="font-medium">{truck.plate}</span>
             </div>
-            
+
             <div className="flex items-center justify-between py-2 border-b border-border/50">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
                   <Gauge className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <span className="text-muted-foreground">Model</span>
+                <span className="text-muted-foreground">
+                  {t("driverTruck.model")}
+                </span>
               </div>
               <span className="font-medium">{truck.model}</span>
             </div>
-            
+
             <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center">
                   <CheckCircle2 className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <span className="text-muted-foreground">Status</span>
+                <span className="text-muted-foreground">
+                  {t("driverTruck.statusLabel")}
+                </span>
               </div>
-              <span className="font-medium">{truckStatus.label}</span>
+              <span className="font-medium">
+                {truckStatus.label}
+              </span>
             </div>
           </div>
         </div>
-
-        
       </div>
     </AppLayout>
   );

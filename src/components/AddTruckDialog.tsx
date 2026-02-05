@@ -1,5 +1,8 @@
 
+
+
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +43,7 @@ const EMPTY_FORM = {
 };
 
 export function AddTruckDialog({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const { mutateAsync, isPending } = useCreateTruck();
 
   const [form, setForm] = useState<any>(EMPTY_FORM);
@@ -93,17 +97,17 @@ export function AddTruckDialog({ open, onClose }: Props) {
 
     const e: Record<string, string> = {};
 
-    if (!form.licensePlate) e.licensePlate = "License plate is required";
-    if (!form.model) e.model = "Model name is required";
-    if (!form.year) e.year = "Model year is required";
+    if (!form.licensePlate) e.licensePlate = t('validation.required');
+    if (!form.model) e.model = t('validation.required');
+    if (!form.year) e.year = t('validation.required');
     if (!form.weight_capacity)
-      e.weight_capacity = "Weight capacity is required";
+      e.weight_capacity = t('validation.required');
 
     if (!registrationUrl)
-      e.registrationUrl = "Vehicle registration document is required";
+      e.registrationUrl = t('validation.documentRequired');
 
     if (!insuranceUrl)
-      e.insuranceUrl = "Insurance document is required";
+      e.insuranceUrl = t('validation.documentRequired');
 
     if (Object.keys(e).length) {
       setErrors(e);
@@ -153,10 +157,10 @@ export function AddTruckDialog({ open, onClose }: Props) {
             </div>
             <div>
               <DialogTitle className="text-xl font-bold">
-                Add New Fleet Truck
+                {t('trucks.addNewFleet')}
               </DialogTitle>
               <DialogDescription>
-                Vehicle registration & compliance documents
+                {t('trucks.vehicleRegistration')}
               </DialogDescription>
             </div>
           </div>
@@ -176,26 +180,26 @@ export function AddTruckDialog({ open, onClose }: Props) {
             {/* VEHICLE INFO */}
             <section className="space-y-4">
               <SectionTitle icon={<FileText className="h-4 w-4" />}>
-                Vehicle Specifications
+                {t('trucks.vehicleSpecs')}
               </SectionTitle>
 
               <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl">
                 <InputField
-                  label="License Plate"
+                  label={t('trucks.licensePlate')}
                   value={form.licensePlate}
                   error={errors.licensePlate}
                   onChange={(v) => update("licensePlate", v)}
                 />
 
                 <InputField
-                  label="Model Name"
+                  label={t('trucks.modelName')}
                   value={form.model}
                   error={errors.model}
                   onChange={(v) => update("model", v)}
                 />
 
                 <InputField
-                  label="Model Year"
+                  label={t('trucks.modelYear')}
                   type="number"
                   value={form.year}
                   error={errors.year}
@@ -203,7 +207,7 @@ export function AddTruckDialog({ open, onClose }: Props) {
                 />
 
                 <InputField
-                  label="Weight Capacity (kg)"
+                  label={t('trucks.weightCapacity')}
                   type="number"
                   value={form.weight_capacity}
                   error={errors.weight_capacity}
@@ -215,11 +219,11 @@ export function AddTruckDialog({ open, onClose }: Props) {
             {/* TELEMATICS */}
             <section className="space-y-4">
               <SectionTitle icon={<Cpu className="h-4 w-4" />}>
-                Hardware & Telematics
+                {t('trucks.hardwareTelematics')}
               </SectionTitle>
 
               <InputField
-                label="Samsara Device ID"
+                label={t('trucks.samsaraDevice')}
                 span
                 value={form.samsaraDeviceId}
                 error={errors.samsaraDeviceId}
@@ -230,7 +234,7 @@ export function AddTruckDialog({ open, onClose }: Props) {
             {/* DOCUMENTS */}
             <section className="space-y-4">
               <SectionTitle icon={<CheckCircle2 className="h-4 w-4" />}>
-                Compliance Documents
+                {t('trucks.complianceDocuments')}
               </SectionTitle>
 
               {(errors.registrationUrl || errors.insuranceUrl) && (
@@ -241,16 +245,20 @@ export function AddTruckDialog({ open, onClose }: Props) {
 
               <div className="grid grid-cols-2 gap-4">
                 <DocumentUploadBox
-                  label="Vehicle Registration"
+                  label={t('trucks.vehicleRegistrationDoc')}
                   uploading={uploading.registration}
                   url={registrationUrl}
                   onUpload={(f) => uploadDocument(f, "registration")}
+                  uploadText={t('trucks.uploadPdf')}
+                  uploadedText={t('trucks.pdfUploaded')}
                 />
                 <DocumentUploadBox
-                  label="Insurance Policy"
+                  label={t('trucks.insurancePolicy')}
                   uploading={uploading.insurance}
                   url={insuranceUrl}
                   onUpload={(f) => uploadDocument(f, "insurance")}
+                  uploadText={t('trucks.uploadPdf')}
+                  uploadedText={t('trucks.pdfUploaded')}
                 />
               </div>
             </section>
@@ -262,13 +270,13 @@ export function AddTruckDialog({ open, onClose }: Props) {
         {/* FOOTER */}
         <DialogFooter className="p-6 bg-slate-50">
           <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleSubmit} disabled={isPending}>
             {isPending && (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             )}
-            Create Truck
+            {t('trucks.createTruck')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -319,6 +327,8 @@ function DocumentUploadBox({
   uploading,
   url,
   onUpload,
+  uploadText,
+  uploadedText,
 }: any) {
   return (
     <div className="relative border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center gap-2 bg-white">
@@ -342,7 +352,7 @@ function DocumentUploadBox({
 
       <p className="text-sm font-semibold">{label}</p>
       <p className="text-xs text-slate-500">
-        {url ? "PDF uploaded" : "Upload PDF"}
+        {url ? uploadedText : uploadText}
       </p>
     </div>
   );

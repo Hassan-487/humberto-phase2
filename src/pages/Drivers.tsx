@@ -1,4 +1,5 @@
 
+
 import { useState, useMemo } from "react";
 import { Plus, Search, User, Edit3, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,37 +18,30 @@ import { AddDriverDialog } from "@/components/AddDriverDialog";
 import { UpdateDriverDialog } from "@/components/UpdateDriverDialog";
 import { DriverProfileSheet } from "@/components/DriverDetailSheet";
 import { PermissionGuard } from "@/components/PermissionGuard";
+import { useTranslation } from 'react-i18next';
 
 const getStatusBadgeClass = (status: string) => {
   switch (status) {
     case "idle":
       return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
-
     case "assigned":
       return "bg-blue-500/10 text-blue-600 border-blue-200";
-
     case "in_progress":
-      // Dark purple
       return "bg-purple-700/15 text-purple-800 border-purple-400";
-
     case "stopped":
-      // Red for stopped
       return "bg-red-500/10 text-red-600 border-red-200";
-
     case "complete":
       return "bg-teal-500/10 text-teal-600 border-teal-200";
-
     case "inactive":
       return "bg-slate-200 text-slate-600 border-slate-300";
-
     default:
       return "bg-slate-100 text-slate-600 border-slate-200";
   }
 };
 
-
 export default function Drivers() {
   const { drivers, loading, deleteDriver } = useDrivers();
+  const { t } = useTranslation();
 
   const [selectedDriver, setSelectedDriver] = useState<any | null>(null);
   const [editingDriver, setEditingDriver] = useState<any | null>(null);
@@ -77,15 +71,15 @@ export default function Drivers() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Fleet Drivers</h2>
+          <h2 className="text-2xl font-bold">{t('drivers.title')}</h2>
           <p className="text-sm text-muted-foreground">
-            Manage your workforce and safety performance.
+            {t('drivers.description')}
           </p>
         </div>
 
         <PermissionGuard>
           <Button onClick={() => setAddOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" /> Add Driver
+            <Plus className="h-4 w-4" /> {t('drivers.addDriver')}
           </Button>
         </PermissionGuard>
       </div>
@@ -93,7 +87,7 @@ export default function Drivers() {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search name, phone, or truck..."
+          placeholder={t('drivers.search')}
           className="pl-10"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -104,12 +98,12 @@ export default function Drivers() {
         <table className="w-full text-sm">
           <thead className="bg-muted/30 border-b">
             <tr>
-              <th className="p-4 text-left">NAME</th>
-              <th className="p-4 text-left">CONTACT</th>
-              <th className="p-4 text-left">TRUCK</th>
-              <th className="p-4 text-left">STATUS</th>
-              <th className="p-4 text-left">SAFETY</th>
-              <th className="p-4 text-right">ACTION</th>
+              <th className="p-4 text-left">{t('drivers.name')}</th>
+              <th className="p-4 text-left">{t('drivers.contact')}</th>
+              <th className="p-4 text-left">{t('drivers.truck')}</th>
+              <th className="p-4 text-left">{t('drivers.status')}</th>
+              <th className="p-4 text-left">{t('drivers.safety')}</th>
+              <th className="p-4 text-right">{t('drivers.action')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -124,7 +118,7 @@ export default function Drivers() {
                 <td className="p-4">
                   {driver.assignedTruck?.licensePlate || (
                     <span className="italic text-xs text-muted-foreground">
-                      Unassigned
+                      {t('drivers.unassigned')}
                     </span>
                   )}
                 </td>
@@ -133,7 +127,7 @@ export default function Drivers() {
                     variant="outline"
                     className={`capitalize ${getStatusBadgeClass(driver.status)}`}
                   >
-                    {driver.status.replace("_", " ")}
+                    {t(`status.${driver.status}`)}
                   </Badge>
                 </td>
                 <td className="p-4">
@@ -153,7 +147,7 @@ export default function Drivers() {
                     variant="outline"
                     onClick={() => setSelectedDriver(driver)}
                   >
-                    View Profile
+                    {t('drivers.viewProfile')}
                   </Button>
                 </td>
               </tr>
@@ -167,7 +161,7 @@ export default function Drivers() {
         <SheetContent className="sm:max-w-md flex flex-col p-0">
           <SheetHeader className="p-6 border-b">
             <SheetTitle className="flex items-center gap-2 text-xl">
-              <User className="h-5 w-5 text-primary" /> Driver Profile
+              <User className="h-5 w-5 text-primary" /> {t('drivers.driverProfile')}
             </SheetTitle>
           </SheetHeader>
 
@@ -188,7 +182,7 @@ export default function Drivers() {
                     setEditOpen(true);
                   }}
                 >
-                  <Edit3 className="h-4 w-4" /> Edit Profile
+                  <Edit3 className="h-4 w-4" /> {t('drivers.editProfile')}
                 </Button>
 
                 <Button
@@ -196,13 +190,13 @@ export default function Drivers() {
                   className="flex-1"
                   onClick={async () => {
                     if (!selectedDriver) return;
-                    if (confirm("Delete this driver?")) {
+                    if (confirm(t('drivers.deleteConfirm'))) {
                       await deleteDriver(selectedDriver._id);
                       setSelectedDriver(null);
                     }
                   }}
                 >
-                  Terminate Driver
+                  {t('drivers.terminateDriver')}
                 </Button>
               </div>
             </SheetFooter>

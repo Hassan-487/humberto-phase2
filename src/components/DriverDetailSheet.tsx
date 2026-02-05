@@ -1,5 +1,6 @@
 
 
+import { useTranslation } from "react-i18next";
 import {
   Phone,
   Activity,
@@ -18,6 +19,8 @@ export function DriverProfileSheet({
   selectedDriver,
   getStatusBadgeClass,
 }: DriverProfileSheetProps) {
+  const { t } = useTranslation();
+
   if (!selectedDriver) return null;
 
   /* ================= DOCUMENT HELPERS ================= */
@@ -62,13 +65,13 @@ export function DriverProfileSheet({
       {/* PERFORMANCE METRICS */}
       <section className="space-y-4">
         <Label className="font-bold flex items-center gap-2 text-primary uppercase text-[10px] tracking-widest">
-          <Activity className="h-4 w-4" /> Performance Overview
+          <Activity className="h-4 w-4" /> {t('drivers.performanceOverview')}
         </Label>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 bg-card border rounded-xl">
             <p className="text-[9px] uppercase font-bold text-muted-foreground">
-              Total Trips
+              {t('drivers.totalTrips')}
             </p>
             <p className="text-lg font-bold">
               {selectedDriver.performanceMetrics?.totalTrips || 0}
@@ -77,7 +80,7 @@ export function DriverProfileSheet({
 
           <div className="p-3 bg-card border rounded-xl">
             <p className="text-[9px] uppercase font-bold text-emerald-600">
-              Successful
+              {t('drivers.successful')}
             </p>
             <p className="text-lg font-bold text-emerald-600">
               {selectedDriver.performanceMetrics?.successfulTrips || 0}
@@ -86,7 +89,7 @@ export function DriverProfileSheet({
 
           <div className="p-3 bg-card border rounded-xl col-span-2">
             <p className="text-[9px] uppercase font-bold text-amber-600">
-              Delayed
+              {t('drivers.delayed')}
             </p>
             <p className="text-lg font-bold text-amber-600">
               {selectedDriver.performanceMetrics?.delayedTrips || 0}
@@ -98,13 +101,13 @@ export function DriverProfileSheet({
       {/* LICENSE INFORMATION */}
       <section className="space-y-4 pt-4 border-t">
         <Label className="font-bold flex items-center gap-2 text-muted-foreground uppercase text-[10px] tracking-widest">
-          <ShieldCheck className="h-4 w-4" /> License Information
+          <ShieldCheck className="h-4 w-4" /> {t('drivers.licenseInfo')}
         </Label>
 
         <div className="p-4 bg-muted/20 border rounded-xl grid grid-cols-2 gap-4">
           <div>
             <p className="text-[10px] text-muted-foreground font-bold uppercase">
-              License Number
+              {t('drivers.licenseNumberLabel')}
             </p>
             <p className="text-xs font-bold font-mono">
               {selectedDriver.licenseNumber}
@@ -113,7 +116,7 @@ export function DriverProfileSheet({
 
           <div className="text-right">
             <p className="text-[10px] text-muted-foreground font-bold uppercase">
-              Expiration
+              {t('drivers.expiration')}
             </p>
             <p className="text-xs font-bold">
               {selectedDriver.licenseExpiry
@@ -129,7 +132,7 @@ export function DriverProfileSheet({
       {/* DOCUMENTS (FIXED – UI SAME) */}
       <section className="space-y-4 pt-4 border-t">
         <Label className="font-bold uppercase text-[10px] tracking-widest">
-          Documents
+          {t('drivers.documents')}
         </Label>
 
         <div className="flex flex-col gap-2">
@@ -140,7 +143,7 @@ export function DriverProfileSheet({
               rel="noopener noreferrer"
               className="text-sm font-semibold text-primary underline"
             >
-              📄 View License Document
+              📄 {t('drivers.viewLicense')}
             </a>
           )}
 
@@ -151,7 +154,7 @@ export function DriverProfileSheet({
               rel="noopener noreferrer"
               className="text-sm font-semibold text-primary underline"
             >
-              📄 View Tax Status Certificate
+              📄 {t('drivers.viewTax')}
             </a>
           )}
 
@@ -162,7 +165,7 @@ export function DriverProfileSheet({
               rel="noopener noreferrer"
               className="text-sm font-semibold text-primary underline"
             >
-              📄 View Identity Card
+              📄 {t('drivers.viewId')}
             </a>
           )}
         </div>

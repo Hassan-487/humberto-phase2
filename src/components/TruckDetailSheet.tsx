@@ -1,4 +1,7 @@
+
+
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Sheet,
   SheetContent,
@@ -55,6 +58,7 @@ export function TruckDetailsSheet({
   isOpen,
   onClose,
 }: Props) {
+  const { t } = useTranslation();
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const deleteMutation = useDeleteTruck();
 
@@ -71,11 +75,7 @@ export function TruckDetailsSheet({
   );
 
   const handleDelete = async () => {
-    if (
-      confirm(
-        "Are you sure you want to delete this truck? This action is permanent."
-      )
-    ) {
+    if (confirm(t('truckDetails.deleteConfirm'))) {
       await deleteMutation.mutateAsync(truck._id);
       onClose();
     }
@@ -89,7 +89,7 @@ export function TruckDetailsSheet({
           <SheetHeader className="p-6 border-b bg-card">
             <SheetTitle className="flex items-center gap-2 font-bold text-xl">
               <TruckIcon className="h-6 w-6 text-primary" />
-              Truck Profile: {truck.licensePlate}
+              {t('truckDetails.title')}: {truck.licensePlate}
             </SheetTitle>
           </SheetHeader>
 
@@ -100,7 +100,7 @@ export function TruckDetailsSheet({
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <Label className="text-[10px] uppercase text-muted-foreground font-bold">
-                    Live Status
+                    {t('truckDetails.liveStatus')}
                   </Label>
                   <Badge
                     variant="outline"
@@ -108,19 +108,19 @@ export function TruckDetailsSheet({
                       truck.status
                     )}`}
                   >
-                    {truck.status?.replace("_", " ") || "Unknown"}
+                    {t(`status.${truck.status}`) || truck.status?.replace("_", " ") || "Unknown"}
                   </Badge>
                 </div>
 
                 <div className="text-right space-y-1">
                   <Label className="text-[10px] uppercase text-muted-foreground font-bold">
-                    Primary Driver
+                    {t('truckDetails.primaryDriver')}
                   </Label>
                   <p className="font-bold flex items-center justify-end gap-1.5">
                     <User className="h-4 w-4 text-primary" />
                     {truck.currentDriver
                       ? `${truck.currentDriver.firstName} ${truck.currentDriver.lastName}`
-                      : "Unassigned"}
+                      : t('truckDetails.unassigned')}
                   </p>
                 </div>
               </div>
@@ -129,25 +129,25 @@ export function TruckDetailsSheet({
             {/* VEHICLE SPECIFICATIONS */}
             <div className="space-y-3">
               <h4 className="text-sm font-bold flex items-center gap-2 border-b pb-1 text-primary">
-                <Gauge className="h-4 w-4" /> Vehicle Specifications
+                <Gauge className="h-4 w-4" /> {t('truckDetails.vehicleSpecs')}
               </h4>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Model</Label>
+                  <Label className="text-xs text-muted-foreground">{t('truckDetails.model')}</Label>
                   <p className="font-semibold">{truck.model}</p>
                 </div>
 
                 <div>
                   <Label className="text-xs text-muted-foreground">
-                    Model Year
+                    {t('truckDetails.modelYear')}
                   </Label>
                   <p className="font-semibold">{truck.year}</p>
                 </div>
 
                 <div>
                   <Label className="text-xs text-muted-foreground">
-                    Weight Capacity
+                    {t('truckDetails.weightCapacity')}
                   </Label>
                   <p className="font-semibold">
                     {truck.weight_capacity?.toLocaleString()} kg
@@ -156,7 +156,7 @@ export function TruckDetailsSheet({
 
                 <div>
                   <Label className="text-xs text-muted-foreground">
-                    Samsara Device
+                    {t('truckDetails.samsaraDevice')}
                   </Label>
                   <p className="font-mono text-[11px] bg-muted/50 px-1 rounded">
                     {truck.samsaraDeviceId || "—"}
@@ -169,7 +169,7 @@ export function TruckDetailsSheet({
             <section className="space-y-4 pt-4 border-t">
               <Label className="text-sm font-bold flex items-center gap-2 border-b pb-1 text-primary">
                 <FileText className="h-4 w-4" />
-                Truck Documents
+                {t('truckDetails.truckDocuments')}
               </Label>
 
               <div className="space-y-2">
@@ -180,11 +180,11 @@ export function TruckDetailsSheet({
                     rel="noopener noreferrer"
                     className="block text-sm font-semibold text-primary underline"
                   >
-                    📄 View Registration Document
+                    📄 {t('truckDetails.viewRegistration')}
                   </a>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Registration document not uploaded
+                    {t('truckDetails.registrationNotUploaded')}
                   </p>
                 )}
 
@@ -195,11 +195,11 @@ export function TruckDetailsSheet({
                     rel="noopener noreferrer"
                     className="block text-sm font-semibold text-primary underline"
                   >
-                    📄 View Insurance Document
+                    📄 {t('truckDetails.viewInsurance')}
                   </a>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Insurance document not uploaded
+                    {t('truckDetails.insuranceNotUploaded')}
                   </p>
                 )}
               </div>
@@ -208,19 +208,19 @@ export function TruckDetailsSheet({
             {/* LOCATION */}
             <div className="space-y-3 pt-4 border-t">
               <h4 className="text-sm font-bold flex items-center gap-2 border-b pb-1 text-primary">
-                <MapPin className="h-4 w-4" /> Current Location
+                <MapPin className="h-4 w-4" /> {t('truckDetails.currentLocation')}
               </h4>
 
               <div className="p-3 border rounded-lg bg-blue-50/10">
                 <p className="font-medium">
                   {truck.lastKnownLocation?.address ||
-                    "Address not reported"}
+                    t('truckDetails.addressNotReported')}
                 </p>
 
                 {truck.lastKnownLocation?.updatedAt && (
                   <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-2">
                     <History className="h-3.5 w-3.5" />
-                    Last updated:{" "}
+                    {t('truckDetails.lastUpdated')}:{" "}
                     {new Date(
                       truck.lastKnownLocation.updatedAt
                     ).toLocaleString()}
@@ -239,7 +239,7 @@ export function TruckDetailsSheet({
                   variant="outline"
                   onClick={() => setIsUpdateOpen(true)}
                 >
-                  <Edit3 className="h-4 w-4" /> Edit Details
+                  <Edit3 className="h-4 w-4" /> {t('truckDetails.editDetails')}
                 </Button>
 
                 <Button
@@ -250,8 +250,8 @@ export function TruckDetailsSheet({
                 >
                   <Trash2 className="h-4 w-4" />
                   {deleteMutation.isPending
-                    ? "Removing..."
-                    : "Delete Truck"}
+                    ? t('truckDetails.removing')
+                    : t('truckDetails.deleteTruck')}
                 </Button>
               </div>
             </SheetFooter>

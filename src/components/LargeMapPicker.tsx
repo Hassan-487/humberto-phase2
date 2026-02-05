@@ -37,8 +37,9 @@ export function LargeMapPicker({
       if (!mapRef.current) return;
 
       map.current = new window.google.maps.Map(mapRef.current, {
-        center: { lat: 39.8283, lng: -98.5795 },
-        zoom: 5,
+        center: { lat: 23.6345, lng: -102.5528 }, // Mexico
+          zoom: 6,
+
       });
     
 
