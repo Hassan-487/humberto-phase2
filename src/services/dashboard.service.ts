@@ -54,7 +54,7 @@ export const dashboardService = {
       severity: 'High',
       message: alert.message,
       timestamp: alert.timeIntervals?.[0] ?? "N/A",
-      truck: alert.truck.plate,
+      truck: alert.truck?.plate ?? 'Null',
       driver: alert.driver.name,
     }));
   },
@@ -64,7 +64,7 @@ export const dashboardService = {
 
     return dashboard.activeTrips.trips.slice(0, limit).map((trip: any, index: number) => ({
       id: index,
-      tripId: trip.truck.plate,
+      tripId: trip.truck?.plate ?? 'Null',
       driver: trip.driver.name,
       origin: trip.origin,
       destination: trip.destination,

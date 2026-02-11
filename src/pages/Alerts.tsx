@@ -64,7 +64,10 @@ export default function Alerts() {
 
     return (
       a.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.truck?.licensePlate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (a.truck?.licensePlate ?? '')
+  .toLowerCase()
+  .includes(searchTerm.toLowerCase())
+ ||
       driverName.includes(searchTerm.toLowerCase())
     );
   });
@@ -111,7 +114,8 @@ export default function Alerts() {
                   <div className="flex gap-4 text-xs text-muted-foreground mt-2">
                     <span className="flex items-center gap-1">
                       <Truck className="h-3 w-3" />
-                      {alert.truck.licensePlate}
+                      {alert.truck?.licensePlate ?? 'Null'}
+
                     </span>
                     <span className="flex items-center gap-1">
                       <User className="h-3 w-3" />
