@@ -365,15 +365,21 @@ function DocumentUploadBox({
   uploadedText,
 }: any) {
   return (
-    <div
-      className={`relative border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center gap-2 bg-white transition-all ${
+    <label
+      className={`relative border-2 border-dashed rounded-xl p-5
+        flex flex-col items-center justify-center gap-2
+        bg-white transition-all cursor-pointer
+        hover:border-primary hover:bg-primary/5
+        focus-within:ring-2 focus-within:ring-primary
+      " ${
         span ? "col-span-2" : ""
       }`}
     >
-      <Input
+      {/* FULL CLICK AREA */}
+      <input
         type="file"
         accept="application/pdf"
-        className="absolute inset-0 opacity-0 cursor-pointer"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         disabled={uploading}
         onChange={(e) =>
           e.target.files && onUpload(e.target.files[0])
@@ -392,6 +398,6 @@ function DocumentUploadBox({
       <p className="text-xs text-slate-500">
         {url ? uploadedText : uploadText}
       </p>
-    </div>
+    </label>
   );
 }

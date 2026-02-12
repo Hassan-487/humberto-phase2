@@ -71,7 +71,8 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
   const [uploadingInvoice2, setUploadingInvoice2] = useState(false);
 
   const availableDrivers = useMemo(() => (drivers || []).filter((d: any) => d.status !== "inactive"), [drivers]);
-  const availableTrucks = useMemo(() => (trucks || []).filter((t: any) => t.status === "available"), [trucks]);
+  //const availableTrucks = useMemo(() => (trucks || []).filter((t: any) => t.status === "available"), [trucks]);
+const availableTrucks = useMemo(() => trucks || [], [trucks]);
 
   useEffect(() => {
     if (open) {
@@ -232,7 +233,25 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
                   <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
                     <SelectTrigger className="bg-white"><SelectValue placeholder={t('trips.searchTrucks')} /></SelectTrigger>
                     <SelectContent>
-                      {availableTrucks.map((t: any) => (<SelectItem key={t._id} value={t._id}>{t.licensePlate} </SelectItem>))}
+                      {availableTrucks.map((t: any) => (
+  <SelectItem key={t._id} value={t._id}>
+    <span className="flex items-center justify-between w-full">
+      <span>{t.licensePlate}</span>
+      <span
+        className={`text-[10px] font-medium ml-2 ${
+          t.status === "available"
+            ? "text-emerald-600"
+            : t.status === "in_transit"
+            ? "text-amber-600"
+            : "text-slate-500"
+        }`}
+      >
+        ({t.status})
+      </span>
+    </span>
+  </SelectItem>
+))}
+
                     </SelectContent>
                   </Select>
                 </div>
@@ -292,15 +311,51 @@ export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: ()
   );
 }
 
-function InvoiceUploadBox({ label, uploading, url, onUpload, uploadText, uploadedText }: any) {
+function InvoiceUploadBox({
+  label,
+  uploading,
+  url,
+  onUpload,
+  uploadText,
+  uploadedText,
+}: any) {
   return (
-    <div className="relative border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors hover:border-primary/50 bg-white">
-      <Input type="file" accept="application/pdf" className="absolute inset-0 opacity-0 cursor-pointer" disabled={uploading} onChange={(e) => e.target.files && onUpload(e.target.files[0])} />
-      {uploading ? <Loader2 className="h-5 w-5 animate-spin text-primary" /> : <FileCheck className={`h-5 w-5 ${url ? 'text-emerald-500' : 'text-slate-400'}`} />}
+    <label
+      className="
+        relative border-2 border-dashed rounded-xl p-5
+        flex flex-col items-center justify-center gap-2
+        bg-white transition-all cursor-pointer
+        hover:border-primary hover:bg-primary/5
+        focus-within:ring-2 focus-within:ring-primary
+      "
+    >
+      {/* FULL CLICK AREA */}
+      <input
+        type="file"
+        accept="application/pdf"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        disabled={uploading}
+        onChange={(e) =>
+          e.target.files && onUpload(e.target.files[0])
+        }
+      />
+
+      {uploading ? (
+        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+      ) : (
+        <FileCheck
+          className={`h-5 w-5 ${
+            url ? "text-emerald-500" : "text-slate-400"
+          }`}
+        />
+      )}
+
       <div className="text-center">
         <p className="text-xs font-semibold">{label}</p>
-        <p className="text-[10px] text-muted-foreground">{url ? uploadedText : uploadText}</p>
+        <p className="text-[10px] text-muted-foreground">
+          {url ? uploadedText : uploadText}
+        </p>
       </div>
-    </div>
+    </label>
   );
 }

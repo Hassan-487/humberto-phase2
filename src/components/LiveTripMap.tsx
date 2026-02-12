@@ -1,4 +1,5 @@
 
+
 import { useEffect, useRef } from "react";
 import { loadGoogleMaps } from "@/lib/google-loader";
 
@@ -15,7 +16,7 @@ export function LiveTripMap({ current }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const truckMarker = useRef<any>(null);
-  
+
   console.log("LiveTripMap render", { current });
 
   // INITIALIZE MAP
@@ -35,14 +36,27 @@ export function LiveTripMap({ current }: MapProps) {
         zoomControl: true,
       });
 
+      // ✅ CREATE MARKER IMMEDIATELY AFTER MAP LOAD
+      const truckPos = {
+        lat: Number(current.latitude),
+        lng: Number(current.longitude),
+      };
+
+      truckMarker.current = new window.google.maps.Marker({
+        map: mapInstance.current,
+        position: truckPos,
+        title: "Current Location",
+        icon: {
+          url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+          scaledSize: new window.google.maps.Size(40, 40),
+        },
+      });
+
       // Trigger resize after map is loaded
       setTimeout(() => {
         if (mapInstance.current) {
           window.google.maps.event.trigger(mapInstance.current, "resize");
-          mapInstance.current.setCenter({
-            lat: Number(current.latitude),
-            lng: Number(current.longitude),
-          });
+          mapInstance.current.setCenter(truckPos);
         }
       }, 400);
     });
@@ -52,58 +66,20 @@ export function LiveTripMap({ current }: MapProps) {
       mapInstance.current = null;
       truckMarker.current = null;
     };
-  }, []); // Empty dependency array - initialize once
+  }, []); // initialize once
 
-  // UPDATE TRUCK POSITION
-  // useEffect(() => {
-  //   if (!mapInstance.current || !current) return;
+  // UPDATE TRUCK POSITION (when GPS changes)
+  useEffect(() => {
+    if (!mapInstance.current || !truckMarker.current || !current) return;
 
-  //   const truckPos = {
-  //     lat: Number(current.latitude),
-  //     lng: Number(current.longitude),
-  //   };
+    const truckPos = {
+      lat: Number(current.latitude),
+      lng: Number(current.longitude),
+    };
 
-  //   if (!truckMarker.current) {
-  //     truckMarker.current = new window.google.maps.Marker({
-  //       map: mapInstance.current,
-  //       position: truckPos,
-  //       title: "Current Location",
-  //       animation: window.google.maps.Animation.DROP,
-  //     });
-  //   } else {
-  //     truckMarker.current.setPosition(truckPos);
-  //   }
-
-  //   // Center map on current location
-  //   mapInstance.current.setCenter(truckPos);
-  // }, [current]);
-useEffect(() => {
-  if (!mapInstance.current || !current) return;
-
-  const { AdvancedMarkerElement } = window.google.maps.marker || {};
-  if (!AdvancedMarkerElement) return;
-
-  const truckPos = {
-    lat: Number(current.latitude),
-    lng: Number(current.longitude),
-  };
-
-  // CREATE MARKER ONCE
-  if (!truckMarker.current) {
-    truckMarker.current = new AdvancedMarkerElement({
-      map: mapInstance.current,
-      position: truckPos,
-      title: "Current Location",
-    });
-  }
-  // UPDATE POSITION
-  else {
-    truckMarker.current.position = truckPos;
-  }
-
-  // Smooth center update
-  mapInstance.current.panTo(truckPos);
-}, [current]);
+    truckMarker.current.setPosition(truckPos);
+    mapInstance.current.panTo(truckPos);
+  }, [current]);
 
   return (
     <div
