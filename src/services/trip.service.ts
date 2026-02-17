@@ -9,6 +9,8 @@ export interface Trip {
   truck: string;
   driver: string;
   origin: string;
+  originPickupTime?: string;
+
   destination: string;
   status: string;
   eta: string;
@@ -69,13 +71,18 @@ const mapBackendTrip = (t: any): Trip => {
   return {
     id: id,
     tripId: t.tripNumber || `TRP-${id.slice(-6).toUpperCase()}`,
-    truck: t.truck?.licensePlate || "N/A", 
+    truck: t.truck?.truckNumber || t.truck?.licensePlate || "N/A",
     driver: t.driver ? `${t.driver.firstName} ${t.driver.lastName}` : "Unassigned",
     origin: t.origin,
     destination: t.destination,
+         originPickupTime: t.originPickupTime,
+
     status: t.status?.replace("_", " ") || "scheduled",
     eta: t.aiEstimatedArrivalHuman || "N/A",
-    progress: t.status === "delivered" ? 100 : (t.status === "in_progress" ? 50 : 0),
+progress:
+  typeof t.aiProgressPercentage === "number"
+    ? Math.min(100, Math.max(0, t.aiProgressPercentage))
+    : 0,
     currentLocation: t.currentLocation,
     originLocation: t.originLocation,
     destinationLocation: t.destinationLocation,

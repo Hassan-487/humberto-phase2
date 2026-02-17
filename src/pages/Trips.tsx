@@ -38,10 +38,17 @@ export default function Trips() {
   const [openUpdate, setOpenUpdate] = useState(false);
 
   // SEARCH: Filters by Truck License or Driver Name
-  const filtered = (trips || []).filter(trip => 
-    (trip.truck || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (trip.driver || "").toLowerCase().includes(searchTerm.toLowerCase())
+ const filtered = (trips || []).filter((trip) => {
+  const term = searchTerm.toLowerCase();
+
+  return (
+    trip.tripId?.toLowerCase().includes(term) ||        // ✅ Trip Number
+    trip.truck?.toLowerCase().includes(term) ||         // Truck Number
+    trip.driver?.toLowerCase().includes(term)        // Driver
+       
   );
+});
+
 
   if (isLoading) {
     return (
@@ -84,9 +91,11 @@ export default function Trips() {
   <table className="w-full text-sm">
     <thead>
       <tr className="bg-muted/30 border-b text-muted-foreground font-semibold">
-        <th className="p-4 text-left">{t('trips.truckLicense')}</th>
+      <th className="p-4 text-left">{t('trips.tripNumber')}</th>
+        <th className="p-4 text-left">{t('trips.truckNumber')}</th>
         <th className="p-4 text-left">{t('trips.driverName')}</th>
         <th className="p-4 text-left">{t('trips.route')}</th>
+        <th className="p-4 text-left">{t('trips.progress')}</th>
         <th className="p-4 text-left">{t('trips.status')}</th>
         <th className="p-4 text-right">{t('trips.action')}</th>
       </tr>
@@ -102,11 +111,26 @@ export default function Trips() {
 
         return (
           <tr key={trip.id} className="border-b hover:bg-muted/30 transition-all">
+            <td className="p-4 font-bold text-foreground">{trip.tripId}</td>
             <td className="p-4 font-bold text-foreground">{trip.truck}</td>
             <td className="p-4 font-medium text-foreground/80">{trip.driver}</td>
             <td className="p-4 text-muted-foreground">
               {trip.origin} → {trip.destination}
             </td>
+            <td className="p-4">
+  <div className="w-full max-w-[120px]">
+    <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-emerald-500 transition-all"
+        style={{ width: `${trip.progress}%` }}
+      />
+    </div>
+    <p className="text-[10px] text-muted-foreground mt-1">
+      {trip.progress.toFixed(0)}%
+    </p>
+  </div>
+</td>
+
 
             <td className="p-4">
               <Badge

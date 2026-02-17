@@ -35,6 +35,7 @@ interface Props {
 }
 
 const EMPTY_FORM = {
+    truckNumber: "",      
   licensePlate: "",
   model: "",
   year: "",
@@ -96,7 +97,7 @@ export function AddTruckDialog({ open, onClose }: Props) {
     setErrors({});
 
     const e: Record<string, string> = {};
-
+    if (!form.truckNumber) e.truckNumber = t('validation.required');
     if (!form.licensePlate) e.licensePlate = t('validation.required');
     if (!form.model) e.model = t('validation.required');
     if (!form.year) e.year = t('validation.required');
@@ -116,6 +117,7 @@ export function AddTruckDialog({ open, onClose }: Props) {
 
     try {
       await mutateAsync({
+        truckNumber: form.truckNumber,
         licensePlate: form.licensePlate,
         model: form.model,
         year: Number(form.year),
@@ -184,6 +186,15 @@ export function AddTruckDialog({ open, onClose }: Props) {
               </SectionTitle>
 
               <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl">
+      
+
+                <InputField
+                  label={t('trucks.truckNumber')}
+                  value={form.truckNumber}
+                  error={errors.truckNumber}
+                  onChange={(v) => update("truckNumber", v)}
+                />
+
                 <InputField
                   label={t('trucks.licensePlate')}
                   value={form.licensePlate}

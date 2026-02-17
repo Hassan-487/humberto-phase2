@@ -17,6 +17,7 @@ export interface TruckDocumentUploadResponse {
 
 export interface Truck {
   _id: string;
+  truckNumber: string;
   licensePlate: string;
   model: string;
   year: number;
@@ -35,7 +36,7 @@ export interface Truck {
     updatedAt?: string;
   };
 }
-
+ 
 /* ================= SERVICE ================= */
 
 export const truckService = {

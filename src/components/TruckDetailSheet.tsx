@@ -89,7 +89,8 @@ export function TruckDetailsSheet({
           <SheetHeader className="p-6 border-b bg-card">
             <SheetTitle className="flex items-center gap-2 font-bold text-xl">
               <TruckIcon className="h-6 w-6 text-primary" />
-              {t('truckDetails.title')}: {truck.licensePlate}
+              {t('truckDetails.title')}: {truck.truckNumber}
+
             </SheetTitle>
           </SheetHeader>
 
@@ -131,6 +132,13 @@ export function TruckDetailsSheet({
               <h4 className="text-sm font-bold flex items-center gap-2 border-b pb-1 text-primary">
                 <Gauge className="h-4 w-4" /> {t('truckDetails.vehicleSpecs')}
               </h4>
+              <div>
+  <Label className="text-xs text-muted-foreground">
+    {t('truckDetails.licensePlate')}
+  </Label>
+  <p className="font-semibold">{truck.licensePlate}</p>
+</div>
+
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>

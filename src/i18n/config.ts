@@ -121,6 +121,7 @@ const resources = {
         addNewFleet: "Add New Fleet Truck",
         vehicleRegistration: "Vehicle registration & compliance documents",
         vehicleSpecs: "Vehicle Specifications",
+        truckNumber: "Truck Number",
         licensePlate: "License Plate",
         modelName: "Model Name",
         modelYear: "Model Year",
@@ -166,6 +167,10 @@ const resources = {
   
       // Trips Page
       trips: {
+          tripNumber: "Trip Number",
+        truckNumber: "Truck Number",
+        "tripStarted": "Trip Started",
+        progress: "Progress",
         title: "Trip Management",
         description: "Monitor active shipments and real-time movement.",
         createTrip: "Create Trip",
@@ -178,7 +183,7 @@ const resources = {
       podNotUploaded: "Proof of Delivery not uploaded",
         status: "STATUS",
         action: "ACTION",
-        viewProfile: "View Profile",
+        viewProfile: "View Details",
         tripProfile: "Trip Profile",
         editTrip: "Edit Trip",
         cancel: "Cancel",
@@ -250,6 +255,7 @@ const resources = {
       // Status values
       status: {
         idle: "Idle",
+         delayed_delivered: "Delayed Delivery",
         assigned: "Assigned",
         in_progress: "In Progress",
         stopped: "Stopped",
@@ -335,6 +341,7 @@ const resources = {
 
       // Truck Details Sheet
       truckDetails: {
+        licensePlate: "License Plate",
         title: "Truck Profile",
         liveStatus: "Live Status",
         primaryDriver: "Primary Driver",
@@ -409,7 +416,8 @@ driverTruck: {
   status: {
     active: "Active",
     assigned: "Assigned",
-    idle: "Idle"
+    idle: "Idle",
+     Delayed_delivered: "Delayed Delivery",
   },
 
   currentTrip: "Current Trip",
@@ -560,6 +568,7 @@ driverTripDetails: {
 
       // Trucks Page
       trucks: {
+        truckNumber: "Número de Camión",
         title: "Inventario de Flota",
         description: "Administre y rastree sus vehículos activos.",
         addTruck: "Agregar Nuevo Camión",
@@ -619,6 +628,10 @@ sidebar: {
 },
       // Trips Page
       trips: {
+          truckNumber: "Número de Camión",
+          tripNumber: "Número de Viaje",
+           "tripStarted": "Viaje iniciado",
+          progress: "Progreso",
         title: "Gestión de Viajes",
         description: "Monitorear envíos activos y movimiento en tiempo real.",
         createTrip: "Crear Viaje",
@@ -631,7 +644,7 @@ sidebar: {
         viewProofOfDelivery: "Ver Comprobante de Entrega",
         deliveryPicture: "Imagen de Entrega",
         podNotUploaded: "Comprobante de entrega no cargado",
-        viewProfile: "Ver Perfil",
+        viewProfile: "Ver Detalles",
         tripProfile: "Perfil del Viaje",
         editTrip: "Editar Viaje",
         cancel: "Cancelar",
@@ -703,6 +716,7 @@ sidebar: {
       // Status values
       status: {
         idle: "Inactivo",
+         delayed_delivered: "Entrega retrasada",
         assigned: "Asignado",
         in_progress: "En Progreso",
         stopped: "Detenido",
@@ -788,6 +802,8 @@ sidebar: {
 
       // Truck Details Sheet
       truckDetails: {
+          licensePlate: "Placa",
+
         title: "Perfil del Camión",
         liveStatus: "Estado en Vivo",
         primaryDriver: "Conductor Principal",

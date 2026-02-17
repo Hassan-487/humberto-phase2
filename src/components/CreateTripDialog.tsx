@@ -236,7 +236,7 @@ const availableTrucks = useMemo(() => trucks || [], [trucks]);
                       {availableTrucks.map((t: any) => (
   <SelectItem key={t._id} value={t._id}>
     <span className="flex items-center justify-between w-full">
-      <span>{t.licensePlate}</span>
+<span>{t.truckNumber || t.licensePlate}</span>
       <span
         className={`text-[10px] font-medium ml-2 ${
           t.status === "available"
