@@ -26,8 +26,7 @@ export function useDrivers(
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
 
-    // 🔑 IMPORTANT: don't run list query when page is undefined
-    enabled: typeof page === "number" && typeof limit === "number",
+    enabled: page === undefined || limit === undefined || (page > 0 && limit > 0),
   });
 
   const create = useMutation({
