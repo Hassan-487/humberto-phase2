@@ -7,7 +7,7 @@ export const truckKeys = {
   list: () => [...truckKeys.all, "list"] as const,
   detail: (id: string) => [...truckKeys.all, "detail", id] as const,
 };
-
+ 
 export function useTrucks() {
   const query = useQuery<Truck[]>({
     queryKey: truckKeys.list(),

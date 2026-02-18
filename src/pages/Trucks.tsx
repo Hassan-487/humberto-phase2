@@ -1,6 +1,6 @@
 
 
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, MapPin, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -32,12 +32,18 @@ const getStatusBadgeClass = (status: string) => {
 };
 
 export default function Trucks() {
+  const ITEMS_PER_PAGE = 10;
+
+const [page, setPage] = useState(1);
+
   const { trucks, loading } = useTrucks();
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTruck, setSelectedTruck] = useState<any | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
 
+
+  
  const filtered = trucks.filter((t) => {
   const term = searchTerm.toLowerCase();
 
@@ -47,6 +53,18 @@ export default function Trucks() {
   );
 });
 
+ const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+
+const paginatedTrucks = filtered.slice(
+  (page - 1) * ITEMS_PER_PAGE,
+  page * ITEMS_PER_PAGE
+);
+
+
+
+useEffect(() => {
+  setPage(1);
+}, [searchTerm]);
 
 
   if (loading) {
@@ -100,7 +118,7 @@ export default function Trucks() {
             </thead>
 
             <tbody>
-              {filtered.map((truck) => (
+              {paginatedTrucks.map((truck) => (
                 <tr key={truck._id} className="border-b hover:bg-muted/30">
                   <td className="p-4 font-bold">{truck.truckNumber}</td>
 
@@ -142,6 +160,30 @@ export default function Trucks() {
           </table>
         </div>
       </div>
+<div className="flex justify-end items-center gap-3 mt-4">
+  <Button
+    size="sm"
+    variant="outline"
+    disabled={page === 1}
+    onClick={() => setPage((p) => p - 1)}
+  >
+    Prev
+  </Button>
+
+  <span className="text-sm font-medium">
+    {page}
+  </span>
+
+  <Button
+    size="sm"
+    variant="outline"
+    disabled={page === totalPages || totalPages === 0}
+    onClick={() => setPage((p) => p + 1)}
+  >
+    Next
+  </Button>
+</div>
+
 
       <AddTruckDialog open={isAddOpen} onClose={() => setIsAddOpen(false)} />
 

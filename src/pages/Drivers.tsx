@@ -1,17 +1,12 @@
 
 
-import { useState, useMemo } from "react";
+import { useState, useMemo,useEffect } from "react";
 import { Plus, Search, User, Edit3, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from "@/components/ui/sheet";
+import { driverService } from "@/services/driver.service";
+import {Sheet,  SheetContent,  SheetHeader,  SheetTitle,SheetFooter,} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { useDrivers } from "@/hooks/useDrivers";
 import { AddDriverDialog } from "@/components/AddDriverDialog";
@@ -38,14 +33,47 @@ const getStatusBadgeClass = (status: string) => {
       return "bg-slate-100 text-slate-600 border-slate-200";
   }
 };
-
+ 
 export default function Drivers() {
-  const { drivers, loading, deleteDriver } = useDrivers();
+  const [page, setPage] = useState(1);
+const [limit] = useState(10);
+const [searchTerm, setSearchTerm] = useState("");
+
+  const { drivers, pagination, loading, deleteDriver } =
+  useDrivers(page, limit, searchTerm);
+
   const { t } = useTranslation();
+
+  useEffect(() => {
+  if (!searchTerm) {
+    setPage(1);
+    return;
+  }
+
+  const findPage = async () => {
+    const allDrivers = await driverService.getAllDrivers();
+
+    const index = allDrivers.findIndex((d: any) => {
+      const fullName = `${d.firstName} ${d.lastName}`.toLowerCase();
+      return (
+        fullName.includes(searchTerm.toLowerCase()) ||
+        d.phoneNumber?.includes(searchTerm)
+      );
+    });
+
+    if (index !== -1) {
+      const newPage = Math.floor(index / limit) + 1;
+      setPage(newPage);
+    }
+  };
+
+  findPage();
+}, [searchTerm, limit]);
+
 
   const [selectedDriver, setSelectedDriver] = useState<any | null>(null);
   const [editingDriver, setEditingDriver] = useState<any | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
@@ -66,6 +94,10 @@ export default function Drivers() {
       </div>
     );
   }
+
+
+
+
 
   return (
     <div className="space-y-6">
@@ -102,7 +134,7 @@ export default function Drivers() {
               <th className="p-4 text-left">{t('drivers.contact')}</th>
               <th className="p-4 text-left">{t('drivers.truck')}</th>
               <th className="p-4 text-left">{t('drivers.status')}</th>
-              <th className="p-4 text-left">{t('drivers.safety')}</th>
+              {/* <th className="p-4 text-left">{t('drivers.safety')}</th> */}
               <th className="p-4 text-right">{t('drivers.action')}</th>
             </tr>
           </thead>
@@ -130,7 +162,7 @@ export default function Drivers() {
                     {t(`status.${driver.status}`)}
                   </Badge>
                 </td>
-                <td className="p-4">
+                {/* <td className="p-4">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">
                       {driver.performanceMetrics?.safetyScore || 0}%
@@ -140,7 +172,7 @@ export default function Drivers() {
                       className="h-1.5 w-16"
                     />
                   </div>
-                </td>
+                </td> */}
                 <td className="p-4 text-right">
                   <Button
                     size="sm"
@@ -155,6 +187,32 @@ export default function Drivers() {
           </tbody>
         </table>
       </div>
+
+
+<div className="flex justify-end items-center gap-3 mt-4">
+  <Button
+    size="sm"
+    variant="outline"
+    disabled={page === 1}
+    onClick={() => setPage((p) => p - 1)}
+  >
+    Prev
+  </Button>
+
+  <span className="text-sm font-medium">
+    {pagination?.page ?? page}
+  </span>
+
+  <Button
+    size="sm"
+    variant="outline"
+    disabled={page === pagination?.totalPages}
+    onClick={() => setPage((p) => p + 1)}
+  >
+    Next
+  </Button>
+</div>
+
 
       {/* PROFILE SHEET */}
       <Sheet open={!!selectedDriver} onOpenChange={() => setSelectedDriver(null)}>

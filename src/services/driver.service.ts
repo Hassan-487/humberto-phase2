@@ -1,24 +1,25 @@
- 
 
-import { driverApi, Driver } from "@/api/driver.api";
+
+
+import { driverApi } from "@/api/driver.api";
 
 export const driverService = {
-  async getDrivers() {
-    const res = await driverApi.getDrivers();
+  async getDrivers(params?: { page?: number; limit?: number; search?: string }) {
+    const res = await driverApi.getDrivers(params);
+    return res.data;
+  },
+
+  async getAllDrivers() {
+    const res = await driverApi.getDrivers({ limit: 20 });
     return res.data.data;
   },
 
-  async getDriver(id: string): Promise<Driver> {
-    const res = await driverApi.getDriver(id);
-    return res.data.data;
-  },
-
-  async createDriver(payload: Partial<Driver>) {
+  async createDriver(payload: any) {
     const res = await driverApi.createDriver(payload);
     return res.data.data;
   },
 
-  async updateDriver(id: string, payload: Partial<Driver>) {
+  async updateDriver(id: string, payload: any) {
     const res = await driverApi.updateDriver(id, payload);
     return res.data.data;
   },
@@ -26,11 +27,8 @@ export const driverService = {
   async deleteDriver(id: string) {
     await driverApi.deleteDriver(id);
   },
-  
-  async uploadDriverDocuments(formData: FormData) {
-    const res = await driverApi.uploadDriverDocuments(formData);
-    return res.data.data;
-  },
+    async uploadDriverDocuments(formData: FormData) {
+     const res = await driverApi.uploadDriverDocuments(formData);
+     return res.data.data;
+   },
 };
-
-

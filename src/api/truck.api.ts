@@ -9,3 +9,4 @@ export const TRUCK_API = {
   MAINTENANCE: (id: string) => `/trucks/${id}/maintenance`,
    UPLOAD_DOCUMENTS: "/documents/truck/upload",
 } as const;
+

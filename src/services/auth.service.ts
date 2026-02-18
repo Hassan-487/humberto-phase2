@@ -19,6 +19,7 @@ export interface AuthUser {
   role: UserRole;
   firstName?: string;
   lastName?: string;
+  phoneNumber?: string
 }
 
 export interface VerifyOtpResponse {

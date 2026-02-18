@@ -1,38 +1,49 @@
 
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import { driverService } from "@/services/driver.service";
 
-export function useDrivers() {
+export function useDrivers(
+  page?: number,
+  limit?: number,
+  search?: string
+) {
   const qc = useQueryClient();
 
   const list = useQuery({
-    queryKey: ["drivers", "list"],
-    queryFn: driverService.getDrivers,
-    refetchInterval: 2 * 60 * 1000,
-    refetchIntervalInBackground: true,
-
-   // staleTime: 0,
+    queryKey: ["drivers", page, limit, search],
+    queryFn: () =>
+      driverService.getDrivers({
+        page,
+        limit,
+        search: search || undefined,
+      }),
+    placeholderData: keepPreviousData,
     refetchOnWindowFocus: false,
+
+    // 🔑 IMPORTANT: don't run list query when page is undefined
+    enabled: typeof page === "number" && typeof limit === "number",
   });
 
   const create = useMutation({
     mutationFn: driverService.createDriver,
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers"] }),
   });
 
   const update = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       driverService.updateDriver(id, data),
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers"] }),
   });
 
   const remove = useMutation({
     mutationFn: driverService.deleteDriver,
-    onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["drivers", "list"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["drivers"] }),
   });
 
   const uploadDocuments = useMutation({
@@ -40,13 +51,14 @@ export function useDrivers() {
   });
 
   return {
-    drivers: list.data ?? [],
+    drivers: list.data?.data ?? [],
+    pagination: list.data?.pagination,
     loading: list.isLoading,
 
     createDriver: create.mutateAsync,
     updateDriver: update.mutateAsync,
     deleteDriver: remove.mutateAsync,
-
     uploadDriverDocuments: uploadDocuments.mutateAsync,
   };
 }
+

@@ -10,7 +10,12 @@ export interface Trip {
   driver: string;
   origin: string;
   originPickupTime?: string;
+destinationDeliveryTime?: string;
 
+  schedule?: {
+    plannedStartTime?: string;
+    actualStartTime?: string;
+  };
   destination: string;
   status: string;
   eta: string;
@@ -64,7 +69,7 @@ export interface Trip {
     totalDistanceCovered: number;
   };
 }
-
+ 
 const mapBackendTrip = (t: any): Trip => {
   const id = t._id || t.id;
   
@@ -75,7 +80,13 @@ const mapBackendTrip = (t: any): Trip => {
     driver: t.driver ? `${t.driver.firstName} ${t.driver.lastName}` : "Unassigned",
     origin: t.origin,
     destination: t.destination,
-         originPickupTime: t.originPickupTime,
+        originPickupTime: t.originPickupTime,
+destinationDeliveryTime: t.destinationDeliveryTime,
+
+schedule: {
+  plannedStartTime: t.schedule?.plannedStartTime,
+  actualStartTime: t.schedule?.actualStartTime,
+},
 
     status: t.status?.replace("_", " ") || "scheduled",
     eta: t.aiEstimatedArrivalHuman || "N/A",

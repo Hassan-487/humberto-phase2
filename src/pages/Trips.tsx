@@ -1,6 +1,6 @@
 
 
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { 
   Plus, Search, Loader2, Trash2, Edit3, Navigation, CircleX
 } from "lucide-react";
@@ -31,6 +31,9 @@ export default function Trips() {
   const cancelMutation = useCancelTrip();
   const deleteMutation = useDeleteTrip();
   const { t } = useTranslation();
+const ITEMS_PER_PAGE = 10;
+
+const [page, setPage] = useState(1);
 
   const [selectedTrip, setSelectedTrip] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,6 +51,17 @@ export default function Trips() {
        
   );
 });
+
+const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+
+const paginatedTrips = filtered.slice(
+  (page - 1) * ITEMS_PER_PAGE,
+  page * ITEMS_PER_PAGE
+);
+
+useEffect(() => {
+  setPage(1);
+}, [searchTerm]);
 
 
   if (isLoading) {
@@ -102,7 +116,7 @@ export default function Trips() {
     </thead>
 
     <tbody>
-      {filtered.map((trip) => {
+      {paginatedTrips.map((trip) => {
         // ✅ normalize backend status safely
         const normalizedStatus = trip.status
           ?.toLowerCase()
@@ -170,6 +184,30 @@ export default function Trips() {
       })}
     </tbody>
   </table>
+</div>
+
+<div className="flex justify-end items-center gap-3 mt-4">
+  <Button
+    size="sm"
+    variant="outline"
+    disabled={page === 1}
+    onClick={() => setPage((p) => p - 1)}
+  >
+    Prev
+  </Button>
+
+  <span className="text-sm font-medium">
+    {page}
+  </span>
+
+  <Button
+    size="sm"
+    variant="outline"
+    disabled={page === totalPages || totalPages === 0}
+    onClick={() => setPage((p) => p + 1)}
+  >
+    Next
+  </Button>
 </div>
 
 
