@@ -1,5 +1,5 @@
 
-
+import { useState } from "react";
 import { AppLayout } from "@/components/layout/Driverlayout/AppLayout";
 import { PageHeader } from "@/components/layout/Driverlayout/PageHeader";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,17 +9,78 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n/config";
+import { authService } from "@/services/auth.service";
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useTranslation();
+const [step, setStep] = useState<1 | 2>(1);
+const [loading, setLoading] = useState(false);
+const [success, setSuccess] = useState(false);
+const [error, setError] = useState("");
+
+const [formData, setFormData] = useState({
+  otp: "",
+  newPassword: "",
+  confirmPassword: "",
+});
 
   const toggleLanguage = () => {
     const nextLang = i18n.language === "en" ? "es-MX" : "en";
     i18n.changeLanguage(nextLang);
   };
+
+
+  const handleSendOtp = async () => {
+  if (!user?.email) return;
+
+  setLoading(true);
+  setError("");
+  try {
+    await authService.forgotPassword(user.email);
+    setStep(2);
+  } catch (err: any) {
+    setError(err.response?.data?.message || t("settings.sendOTP"));
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleResetPassword = async () => {
+  setError("");
+
+  if (formData.newPassword !== formData.confirmPassword) {
+    setError(t("settings.passwordMismatch"));
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const resetToken = await authService.verifyOtp(
+      user!.email,
+      formData.otp
+    );
+
+    await authService.resetPassword(
+      resetToken,
+      formData.newPassword
+    );
+
+    setSuccess(true);
+    setStep(1);
+    setFormData({ otp: "", newPassword: "", confirmPassword: "" });
+
+    setTimeout(() => setSuccess(false), 4000);
+  } catch (err: any) {
+    setError(err.response?.data?.message || "Reset failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const handleLogout = async () => {
     try {
@@ -111,6 +172,83 @@ const Profile = () => {
             </div>
           </div>
         </div>
+
+
+
+{/* Change Password */}
+<div className="card-elevated p-4 space-y-4">
+  <h3 className="font-semibold">
+    {t("settings.security")}
+  </h3>
+
+  {step === 1 ? (
+    <Button
+      variant="outline"
+      className="w-full"
+      onClick={handleSendOtp}
+      disabled={loading}
+    >
+      {t("settings.sendOTP")}
+    </Button>
+  ) : (
+    <div className="space-y-3">
+      <input
+        placeholder={t("settings.enterOTP")}
+        className="w-full h-10 rounded-md border px-3"
+        value={formData.otp}
+        onChange={(e) =>
+          setFormData({ ...formData, otp: e.target.value })
+        }
+      />
+
+      <input
+        type="password"
+        placeholder={t("settings.newPassword")}
+        className="w-full h-10 rounded-md border px-3"
+        value={formData.newPassword}
+        onChange={(e) =>
+          setFormData({ ...formData, newPassword: e.target.value })
+        }
+      />
+
+      <input
+        type="password"
+        placeholder={t("settings.confirmPassword")}
+        className="w-full h-10 rounded-md border px-3"
+        value={formData.confirmPassword}
+        onChange={(e) =>
+          setFormData({ ...formData, confirmPassword: e.target.value })
+        }
+      />
+
+      <div className="flex gap-2">
+        <Button
+          onClick={handleResetPassword}
+          disabled={loading}
+        >
+          {t("settings.verifyUpdate")}
+        </Button>
+
+        <Button
+          variant="ghost"
+          onClick={() => setStep(1)}
+        >
+          {t("settings.cancel")}
+        </Button>
+      </div>
+    </div>
+  )}
+
+  {error && (
+    <p className="text-destructive text-sm">{error}</p>
+  )}
+
+  {success && (
+    <p className="text-emerald-600 text-sm">
+      {t("settings.passwordUpdated")}
+    </p>
+  )}
+</div>
 
         {/* Language Switch (ABOVE dashboard button) */}
         <Button
