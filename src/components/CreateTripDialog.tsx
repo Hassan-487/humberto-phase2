@@ -1,361 +1,361 @@
 
 
-import { useState, useMemo, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Loader2, 
-  MapPin, 
-  Truck, 
-  User as UserIcon, 
-  Calendar, 
-  Package, 
-  FileCheck,
-  Navigation2
-} from "lucide-react";
+// import { useState, useMemo, useEffect } from "react";
+// import { useTranslation } from "react-i18next";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogFooter,
+//   DialogDescription,
+// } from "@/components/ui/dialog";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+// import { 
+//   Loader2, 
+//   MapPin, 
+//   Truck, 
+//   User as UserIcon, 
+//   Calendar, 
+//   Package, 
+//   FileCheck,
+//   Navigation2
+// } from "lucide-react";
 
-import { useTrucks } from "@/hooks/useTrucks";
-import { useDrivers } from "@/hooks/useDrivers";
-import { useCreateTrip } from "@/hooks/useTrips";
-import { uploadTripDocuments } from "@/services/trip.service";
-import { LargeMapPicker } from "./LargeMapPicker";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+// import { useTrucks } from "@/hooks/useTrucks";
+// import { useDrivers } from "@/hooks/useDrivers";
+// import { useCreateTrip } from "@/hooks/useTrips";
+// import { uploadTripDocuments } from "@/services/trip.service";
+// import { LargeMapPicker } from "./LargeMapPicker";
+// import { ScrollArea } from "@/components/ui/scroll-area";
+// import { Label } from "@/components/ui/label";
+// import { Separator } from "@/components/ui/separator";
 
-type MapMode = "origin" | "destination" | null;
+// type MapMode = "origin" | "destination" | null;
 
-const EMPTY_FORM = {
-  origin: "",
-  destination: "",
-  originLocation: null,
-  destinationLocation: null,
-  originPickupTime: "",
-  destinationDeliveryTime: "",
-  truckId: "",
-  driverId: "",
-  weight: "",
-  estimatedHours: "",
-  cargoDescription: "",
-};
+// const EMPTY_FORM = {
+//   origin: "",
+//   destination: "",
+//   originLocation: null,
+//   destinationLocation: null,
+//   originPickupTime: "",
+//   destinationDeliveryTime: "",
+//   truckId: "",
+//   driverId: "",
+//   weight: "",
+//   estimatedHours: "",
+//   cargoDescription: "",
+// };
 
-export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: () => void; }) {
-  const { t } = useTranslation();
-  const { trucks } = useTrucks();
-  const { drivers } = useDrivers();
-  const { mutateAsync, isPending } = useCreateTrip();
+// export function CreateTripDialog({ open, onClose }: { open: boolean; onClose: () => void; }) {
+//   const { t } = useTranslation();
+//   const { trucks } = useTrucks();
+//   const { drivers } = useDrivers();
+//   const { mutateAsync, isPending } = useCreateTrip();
 
-  const [form, setForm] = useState<any>(EMPTY_FORM);
-  const [mapMode, setMapMode] = useState<MapMode>(null);
-  const [driverError, setDriverError] = useState<string | null>(null);
+//   const [form, setForm] = useState<any>(EMPTY_FORM);
+//   const [mapMode, setMapMode] = useState<MapMode>(null);
+//   const [driverError, setDriverError] = useState<string | null>(null);
 
-  const [invoice1Url, setInvoice1Url] = useState<string>("");
-  const [invoice2Url, setInvoice2Url] = useState<string>("");
-  const [uploadingInvoice1, setUploadingInvoice1] = useState(false);
-  const [uploadingInvoice2, setUploadingInvoice2] = useState(false);
+//   const [invoice1Url, setInvoice1Url] = useState<string>("");
+//   const [invoice2Url, setInvoice2Url] = useState<string>("");
+//   const [uploadingInvoice1, setUploadingInvoice1] = useState(false);
+//   const [uploadingInvoice2, setUploadingInvoice2] = useState(false);
 
-  const availableDrivers = useMemo(() => (drivers || []).filter((d: any) => d.status !== "inactive"), [drivers]);
-  //const availableTrucks = useMemo(() => (trucks || []).filter((t: any) => t.status === "available"), [trucks]);
-const availableTrucks = useMemo(() => trucks || [], [trucks]);
+//   const availableDrivers = useMemo(() => (drivers || []).filter((d: any) => d.status !== "inactive"), [drivers]);
+//   //const availableTrucks = useMemo(() => (trucks || []).filter((t: any) => t.status === "available"), [trucks]);
+// const availableTrucks = useMemo(() => trucks || [], [trucks]);
 
-  useEffect(() => {
-    if (open) {
-      setForm(EMPTY_FORM);
-      setMapMode(null);
-      setDriverError(null);
-      setInvoice1Url("");
-      setInvoice2Url("");
-    }
-  }, [open]);
+//   useEffect(() => {
+//     if (open) {
+//       setForm(EMPTY_FORM);
+//       setMapMode(null);
+//       setDriverError(null);
+//       setInvoice1Url("");
+//       setInvoice2Url("");
+//     }
+//   }, [open]);
 
-  const uploadInvoice = async (file: File, type: "invoice1" | "invoice2") => {
-    const fd = new FormData();
-    fd.append(type, file);
-    try {
-      type === "invoice1" ? setUploadingInvoice1(true) : setUploadingInvoice2(true);
-      const res = await uploadTripDocuments(fd);
-      if (type === "invoice1") setInvoice1Url(res.invoice1?.url);
-      else setInvoice2Url(res.invoice2?.url);
-    } catch (err) {
-      console.error("Invoice upload failed", err);
-    } finally {
-      setUploadingInvoice1(false);
-      setUploadingInvoice2(false);
-    }
-  };
+//   const uploadInvoice = async (file: File, type: "invoice1" | "invoice2") => {
+//     const fd = new FormData();
+//     fd.append(type, file);
+//     try {
+//       type === "invoice1" ? setUploadingInvoice1(true) : setUploadingInvoice2(true);
+//       const res = await uploadTripDocuments(fd);
+//       if (type === "invoice1") setInvoice1Url(res.invoice1?.url);
+//       else setInvoice2Url(res.invoice2?.url);
+//     } catch (err) {
+//       console.error("Invoice upload failed", err);
+//     } finally {
+//       setUploadingInvoice1(false);
+//       setUploadingInvoice2(false);
+//     }
+//   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.originLocation || !form.destinationLocation) return alert(t('validation.selectLocation'));
-    if (!form.originPickupTime || !form.destinationDeliveryTime) return alert(t('validation.timesRequired'));
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (!form.originLocation || !form.destinationLocation) return alert(t('validation.selectLocation'));
+//     if (!form.originPickupTime || !form.destinationDeliveryTime) return alert(t('validation.timesRequired'));
 
-    const payload = {
-      ...form,
-      originPickupTime: new Date(form.originPickupTime).toISOString(),
-      destinationDeliveryTime: new Date(form.destinationDeliveryTime).toISOString(),
-      estimatedHours: Number(form.estimatedHours),
-      weight: Number(form.weight),
-      weightCategory: "standard",
-      invoice1: invoice1Url || undefined,
-      invoice2: invoice2Url || undefined,
-    };
+//     const payload = {
+//       ...form,
+//       originPickupTime: new Date(form.originPickupTime).toISOString(),
+//       destinationDeliveryTime: new Date(form.destinationDeliveryTime).toISOString(),
+//       estimatedHours: Number(form.estimatedHours),
+//       weight: Number(form.weight),
+//       weightCategory: "standard",
+//       invoice1: invoice1Url || undefined,
+//       invoice2: invoice2Url || undefined,
+//     };
 
-    try {
-      await mutateAsync(payload);
-      onClose();
-    } catch (err: any) {
-      setDriverError(err?.response?.data?.message || "Failed to create trip");
-    }
-  };
+//     try {
+//       await mutateAsync(payload);
+//       onClose();
+//     } catch (err: any) {
+//       setDriverError(err?.response?.data?.message || "Failed to create trip");
+//     }
+//   };
 
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-       <DialogContent className="max-w-2xl h-[90vh] p-0 flex flex-col overflow-hidden">
-        <DialogHeader className="p-6 pb-2">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg">
-              <Navigation2 className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <DialogTitle className="text-xl">{t('trips.createNewTrip')}</DialogTitle>
-              <DialogDescription>{t('trips.scheduleRoutes')}</DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
+//   return (
+//     <Dialog open={open} onOpenChange={onClose}>
+//        <DialogContent className="max-w-2xl h-[90vh] p-0 flex flex-col overflow-hidden">
+//         <DialogHeader className="p-6 pb-2">
+//           <div className="flex items-center gap-3">
+//             <div className="bg-primary/10 p-2 rounded-lg">
+//               <Navigation2 className="h-6 w-6 text-primary" />
+//             </div>
+//             <div>
+//               <DialogTitle className="text-xl">{t('trips.createNewTrip')}</DialogTitle>
+//               <DialogDescription>{t('trips.scheduleRoutes')}</DialogDescription>
+//             </div>
+//           </div>
+//         </DialogHeader>
 
-        <Separator />
+//         <Separator />
 
-        <ScrollArea className="flex-1 px-6">
-          <form id="trip-form" onSubmit={handleSubmit} className="py-6 space-y-8">
+//         <ScrollArea className="flex-1 px-6">
+//           <form id="trip-form" onSubmit={handleSubmit} className="py-6 space-y-8">
             
-            {/* 1. ROUTE & MAP SECTION */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <MapPin className="h-4 w-4" /> {t('trips.routeInfo')}
-              </div>
-              <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                <div className="space-y-2">
-                  <Label>{t('trips.originAddress')}</Label>
-                  <Input placeholder={t('trips.loadingDock')} value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} required />
-                  <Button type="button" size="sm" variant={mapMode === "origin" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("origin")}>
-                    {form.originLocation ? t('trips.originPinned') : t('trips.pinOrigin')}
-                  </Button>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('trips.destinationAddress')}</Label>
-                  <Input placeholder={t('trips.deliveryPoint')} value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })} required />
-                  <Button type="button" size="sm" variant={mapMode === "destination" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("destination")}>
-                    {form.destinationLocation ? t('trips.destinationPinned') : t('trips.pinDestination')}
-                  </Button>
-                </div>
-              </div>
+//             {/* 1. ROUTE & MAP SECTION */}
+//             <section className="space-y-4">
+//               <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+//                 <MapPin className="h-4 w-4" /> {t('trips.routeInfo')}
+//               </div>
+//               <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+//                 <div className="space-y-2">
+//                   <Label>{t('trips.originAddress')}</Label>
+//                   <Input placeholder={t('trips.loadingDock')} value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} required />
+//                   <Button type="button" size="sm" variant={mapMode === "origin" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("origin")}>
+//                     {form.originLocation ? t('trips.originPinned') : t('trips.pinOrigin')}
+//                   </Button>
+//                 </div>
+//                 <div className="space-y-2">
+//                   <Label>{t('trips.destinationAddress')}</Label>
+//                   <Input placeholder={t('trips.deliveryPoint')} value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })} required />
+//                   <Button type="button" size="sm" variant={mapMode === "destination" ? "default" : "outline"} className="w-full text-xs" onClick={() => setMapMode("destination")}>
+//                     {form.destinationLocation ? t('trips.destinationPinned') : t('trips.pinDestination')}
+//                   </Button>
+//                 </div>
+//               </div>
 
-              {mapMode && (
-                <div className="border rounded-lg overflow-hidden animate-in fade-in zoom-in duration-200">
-                  <div className="bg-slate-900 text-white p-2 flex justify-between items-center px-4">
-                    <span className="text-xs font-medium uppercase">
-                      {mapMode === "origin" ? t('trips.selectingOrigin') : t('trips.selectingDestination')}
-                    </span>
-                    <Button type="button" variant="ghost" size="sm" className="h-7 text-white hover:bg-white/20" onClick={() => setMapMode(null)}>
-                      {t('trips.closeMap')}
-                    </Button>
-                  </div>
-                  <LargeMapPicker mode={mapMode} existingLocations={{ origin: form.originLocation, destination: form.destinationLocation }} 
-                    onSelect={(loc) => setForm((prev: any) => ({ ...prev, [`${mapMode}Location`]: loc }))} />
-                </div>
-              )}
-            </section>
+//               {mapMode && (
+//                 <div className="border rounded-lg overflow-hidden animate-in fade-in zoom-in duration-200">
+//                   <div className="bg-slate-900 text-white p-2 flex justify-between items-center px-4">
+//                     <span className="text-xs font-medium uppercase">
+//                       {mapMode === "origin" ? t('trips.selectingOrigin') : t('trips.selectingDestination')}
+//                     </span>
+//                     <Button type="button" variant="ghost" size="sm" className="h-7 text-white hover:bg-white/20" onClick={() => setMapMode(null)}>
+//                       {t('trips.closeMap')}
+//                     </Button>
+//                   </div>
+//                   <LargeMapPicker mode={mapMode} existingLocations={{ origin: form.originLocation, destination: form.destinationLocation }} 
+//                     onSelect={(loc) => setForm((prev: any) => ({ ...prev, [`${mapMode}Location`]: loc }))} />
+//                 </div>
+//               )}
+//             </section>
 
-            {/* 2. SCHEDULE & LOGISTICS */}
-            <section className="grid grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                  <Calendar className="h-4 w-4" /> {t('trips.schedule')}
-                </div>
-                <div className="space-y-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">{t('trips.pickupTime')}</Label>
-                    <Input type="datetime-local" value={form.originPickupTime} onChange={(e) => setForm({ ...form, originPickupTime: e.target.value })} required />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">{t('trips.estimatedDelivery')}</Label>
-                    <Input type="datetime-local" value={form.destinationDeliveryTime} onChange={(e) => setForm({ ...form, destinationDeliveryTime: e.target.value })} required />
-                  </div>
-                </div>
-              </div>
+//             {/* 2. SCHEDULE & LOGISTICS */}
+//             <section className="grid grid-cols-2 gap-8">
+//               <div className="space-y-4">
+//                 <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+//                   <Calendar className="h-4 w-4" /> {t('trips.schedule')}
+//                 </div>
+//                 <div className="space-y-3">
+//                   <div className="space-y-1.5">
+//                     <Label className="text-xs">{t('trips.pickupTime')}</Label>
+//                     <Input type="datetime-local" value={form.originPickupTime} onChange={(e) => setForm({ ...form, originPickupTime: e.target.value })} required />
+//                   </div>
+//                   <div className="space-y-1.5">
+//                     <Label className="text-xs">{t('trips.estimatedDelivery')}</Label>
+//                     <Input type="datetime-local" value={form.destinationDeliveryTime} onChange={(e) => setForm({ ...form, destinationDeliveryTime: e.target.value })} required />
+//                   </div>
+//                 </div>
+//               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                  <Package className="h-4 w-4" /> {t('trips.cargoDetails')}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">{t('trips.weight')}</Label>
-                    <Input type="number" placeholder="0.00" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} required />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">{t('trips.estimatedHours')}</Label>
-                    <Input type="number" placeholder="Duration" value={form.estimatedHours} onChange={(e) => setForm({ ...form, estimatedHours: e.target.value })} required />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                    <Label className="text-xs">Description</Label>
-                    <textarea placeholder={t('trips.cargoDescription')} value={form.cargoDescription} onChange={(e) => setForm({ ...form, cargoDescription: e.target.value })} 
-                      className="w-full text-sm rounded-md border border-input p-2 h-[82px] focus-visible:ring-1 focus-visible:ring-ring outline-none" required />
-                </div>
-              </div>
-            </section>
+//               <div className="space-y-4">
+//                 <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+//                   <Package className="h-4 w-4" /> {t('trips.cargoDetails')}
+//                 </div>
+//                 <div className="grid grid-cols-2 gap-3">
+//                   <div className="space-y-1.5">
+//                     <Label className="text-xs">{t('trips.weight')}</Label>
+//                     <Input type="number" placeholder="0.00" value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} required />
+//                   </div>
+//                   <div className="space-y-1.5">
+//                     <Label className="text-xs">{t('trips.estimatedHours')}</Label>
+//                     <Input type="number" placeholder="Duration" value={form.estimatedHours} onChange={(e) => setForm({ ...form, estimatedHours: e.target.value })} required />
+//                   </div>
+//                 </div>
+//                 <div className="space-y-1.5">
+//                     <Label className="text-xs">Description</Label>
+//                     <textarea placeholder={t('trips.cargoDescription')} value={form.cargoDescription} onChange={(e) => setForm({ ...form, cargoDescription: e.target.value })} 
+//                       className="w-full text-sm rounded-md border border-input p-2 h-[82px] focus-visible:ring-1 focus-visible:ring-ring outline-none" required />
+//                 </div>
+//               </div>
+//             </section>
 
-            {/* 3. ASSET ASSIGNMENT */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <Truck className="h-4 w-4" /> {t('trips.assetAssignment')}
-              </div>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label>{t('trips.assignedTruck')}</Label>
-                  <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
-                    <SelectTrigger className="bg-white"><SelectValue placeholder={t('trips.searchTrucks')} /></SelectTrigger>
-                    <SelectContent>
-                      {availableTrucks.map((t: any) => (
-  <SelectItem key={t._id} value={t._id}>
-    <span className="flex items-center justify-between w-full">
-<span>{t.truckNumber || t.licensePlate}</span>
-      <span
-        className={`text-[10px] font-medium ml-2 ${
-          t.status === "available"
-            ? "text-emerald-600"
-            : t.status === "in_transit"
-            ? "text-amber-600"
-            : "text-slate-500"
-        }`}
-      >
-        ({t.status})
-      </span>
-    </span>
-  </SelectItem>
-))}
+//             {/* 3. ASSET ASSIGNMENT */}
+//             <section className="space-y-4">
+//               <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+//                 <Truck className="h-4 w-4" /> {t('trips.assetAssignment')}
+//               </div>
+//               <div className="grid grid-cols-2 gap-6">
+//                 <div className="space-y-2">
+//                   <Label>{t('trips.assignedTruck')}</Label>
+//                   <Select onValueChange={(v) => setForm({ ...form, truckId: v })}>
+//                     <SelectTrigger className="bg-white"><SelectValue placeholder={t('trips.searchTrucks')} /></SelectTrigger>
+//                     <SelectContent>
+//                       {availableTrucks.map((t: any) => (
+//   <SelectItem key={t._id} value={t._id}>
+//     <span className="flex items-center justify-between w-full">
+// <span>{t.truckNumber || t.licensePlate}</span>
+//       <span
+//         className={`text-[10px] font-medium ml-2 ${
+//           t.status === "available"
+//             ? "text-emerald-600"
+//             : t.status === "in_transit"
+//             ? "text-amber-600"
+//             : "text-slate-500"
+//         }`}
+//       >
+//         ({t.status})
+//       </span>
+//     </span>
+//   </SelectItem>
+// ))}
 
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>{t('trips.assignedDriver')}</Label>
-                  <Select onValueChange={(v) => { setForm({ ...form, driverId: v }); setDriverError(null); }}>
-                    <SelectTrigger className="bg-white"><SelectValue placeholder={t('trips.searchDrivers')} /></SelectTrigger>
-                    <SelectContent>
-                      {availableDrivers.map((d: any) => (<SelectItem key={d._id} value={d._id}>{d.firstName} {d.lastName}({d.status})</SelectItem>))}
-                    </SelectContent>
-                  </Select>
-                  {driverError && <p className="text-[10px] text-destructive font-medium">{driverError}</p>}
-                </div>
-              </div>
-            </section>
+//                     </SelectContent>
+//                   </Select>
+//                 </div>
+//                 <div className="space-y-2">
+//                   <Label>{t('trips.assignedDriver')}</Label>
+//                   <Select onValueChange={(v) => { setForm({ ...form, driverId: v }); setDriverError(null); }}>
+//                     <SelectTrigger className="bg-white"><SelectValue placeholder={t('trips.searchDrivers')} /></SelectTrigger>
+//                     <SelectContent>
+//                       {availableDrivers.map((d: any) => (<SelectItem key={d._id} value={d._id}>{d.firstName} {d.lastName}({d.status})</SelectItem>))}
+//                     </SelectContent>
+//                   </Select>
+//                   {driverError && <p className="text-[10px] text-destructive font-medium">{driverError}</p>}
+//                 </div>
+//               </div>
+//             </section>
 
-            {/* 4. DOCUMENTATION */}
-            <section className="space-y-4 pb-4">
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
-                <FileCheck className="h-4 w-4" /> {t('trips.documentation')}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                 <InvoiceUploadBox 
-                   label={t('trips.primaryInvoice')} 
-                   uploading={uploadingInvoice1} 
-                   url={invoice1Url} 
-                   onUpload={(f) => uploadInvoice(f, "invoice1")} 
-                   uploadText={t('trips.clickToUpload')}
-                   uploadedText={t('trips.uploaded')}
-                 />
-                 <InvoiceUploadBox 
-                   label={t('trips.secondaryInvoice')} 
-                   uploading={uploadingInvoice2} 
-                   url={invoice2Url} 
-                   onUpload={(f) => uploadInvoice(f, "invoice2")} 
-                   uploadText={t('trips.clickToUpload')}
-                   uploadedText={t('trips.uploaded')}
-                 />
-              </div>
-            </section>
-          </form>
-        </ScrollArea>
+//             {/* 4. DOCUMENTATION */}
+//             <section className="space-y-4 pb-4">
+//               <div className="flex items-center gap-2 text-primary font-semibold text-sm uppercase tracking-wider">
+//                 <FileCheck className="h-4 w-4" /> {t('trips.documentation')}
+//               </div>
+//               <div className="grid grid-cols-2 gap-4">
+//                  <InvoiceUploadBox 
+//                    label={t('trips.primaryInvoice')} 
+//                    uploading={uploadingInvoice1} 
+//                    url={invoice1Url} 
+//                    onUpload={(f) => uploadInvoice(f, "invoice1")} 
+//                    uploadText={t('trips.clickToUpload')}
+//                    uploadedText={t('trips.uploaded')}
+//                  />
+//                  <InvoiceUploadBox 
+//                    label={t('trips.secondaryInvoice')} 
+//                    uploading={uploadingInvoice2} 
+//                    url={invoice2Url} 
+//                    onUpload={(f) => uploadInvoice(f, "invoice2")} 
+//                    uploadText={t('trips.clickToUpload')}
+//                    uploadedText={t('trips.uploaded')}
+//                  />
+//               </div>
+//             </section>
+//           </form>
+//         </ScrollArea>
 
-        <Separator />
+//         <Separator />
 
-        <DialogFooter className="p-6 bg-slate-50/50 border-t">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
-            {t('common.cancel')}
-          </Button>
-          <Button form="trip-form" type="submit" className="min-w-[150px]" disabled={isPending}>
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            {t('trips.scheduleTrip')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
+//         <DialogFooter className="p-6 bg-slate-50/50 border-t">
+//           <Button type="button" variant="ghost" onClick={onClose} disabled={isPending}>
+//             {t('common.cancel')}
+//           </Button>
+//           <Button form="trip-form" type="submit" className="min-w-[150px]" disabled={isPending}>
+//             {isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+//             {t('trips.scheduleTrip')}
+//           </Button>
+//         </DialogFooter>
+//       </DialogContent>
+//     </Dialog>
+//   );
+// }
 
-function InvoiceUploadBox({
-  label,
-  uploading,
-  url,
-  onUpload,
-  uploadText,
-  uploadedText,
-}: any) {
-  return (
-    <label
-      className="
-        relative border-2 border-dashed rounded-xl p-5
-        flex flex-col items-center justify-center gap-2
-        bg-white transition-all cursor-pointer
-        hover:border-primary hover:bg-primary/5
-        focus-within:ring-2 focus-within:ring-primary
-      "
-    >
-      {/* FULL CLICK AREA */}
-      <input
-        type="file"
-        accept="application/pdf"
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-        disabled={uploading}
-        onChange={(e) =>
-          e.target.files && onUpload(e.target.files[0])
-        }
-      />
+// function InvoiceUploadBox({
+//   label,
+//   uploading,
+//   url,
+//   onUpload,
+//   uploadText,
+//   uploadedText,
+// }: any) {
+//   return (
+//     <label
+//       className="
+//         relative border-2 border-dashed rounded-xl p-5
+//         flex flex-col items-center justify-center gap-2
+//         bg-white transition-all cursor-pointer
+//         hover:border-primary hover:bg-primary/5
+//         focus-within:ring-2 focus-within:ring-primary
+//       "
+//     >
+//       {/* FULL CLICK AREA */}
+//       <input
+//         type="file"
+//         accept="application/pdf"
+//         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+//         disabled={uploading}
+//         onChange={(e) =>
+//           e.target.files && onUpload(e.target.files[0])
+//         }
+//       />
 
-      {uploading ? (
-        <Loader2 className="h-5 w-5 animate-spin text-primary" />
-      ) : (
-        <FileCheck
-          className={`h-5 w-5 ${
-            url ? "text-emerald-500" : "text-slate-400"
-          }`}
-        />
-      )}
+//       {uploading ? (
+//         <Loader2 className="h-5 w-5 animate-spin text-primary" />
+//       ) : (
+//         <FileCheck
+//           className={`h-5 w-5 ${
+//             url ? "text-emerald-500" : "text-slate-400"
+//           }`}
+//         />
+//       )}
 
-      <div className="text-center">
-        <p className="text-xs font-semibold">{label}</p>
-        <p className="text-[10px] text-muted-foreground">
-          {url ? uploadedText : uploadText}
-        </p>
-      </div>
-    </label>
-  );
-}
+//       <div className="text-center">
+//         <p className="text-xs font-semibold">{label}</p>
+//         <p className="text-[10px] text-muted-foreground">
+//           {url ? uploadedText : uploadText}
+//         </p>
+//       </div>
+//     </label>
+//   );
+// }

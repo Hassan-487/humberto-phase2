@@ -1,5 +1,3 @@
-
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
@@ -154,22 +152,68 @@ const resources = {
         removing: "Removing...",
         deleteConfirm: "Are you sure you want to delete this truck? This action is permanent."
       },
+
+      // Customers Page
+      customers: {
+        title: "Customers",
+        subtitle: "Businesses and individuals who pay for shipments",
+        addCustomer: "Add Customer",
+        searchPlaceholder: "Search by name or RFC",
+        table: {
+          businessName: "Business Name",
+          rfc: "RFC",
+          paymentTerms: "Payment Terms",
+          status: "Status",
+          action: "Action",
+          viewProfile: "View Profile"
+        },
+        status: {
+          active: "Active",
+          on_hold: "On Hold",
+          blacklisted: "Blacklisted"
+        },
+        profileSheet: "Customer Profile"
+      },
+
+      // Companies Page
+      companies: {
+        title: "Companies",
+        subtitle: "Outsourced fleet partners",
+        addCompany: "Add Company",
+        searchPlaceholder: "Search by name or RFC",
+        table: {
+          businessName: "Business Name",
+          rfc: "RFC",
+          contact: "Contact",
+          status: "Status",
+          action: "Action",
+          viewProfile: "View Profile"
+        },
+        status: {
+          active: "Active",
+          inactive: "Inactive"
+        },
+        profileSheet: "Company Profile"
+      },
+
       sidebar: {
-  dashboard: "Dashboard",
-  drivers: "Drivers",
-  trucks: "Trucks",
-  trips: "Trips",
-  alerts: "Alerts",
-  reports: "Reports",
-  settings: "Settings",
-  logout: "Logout"
-},
-  
+        dashboard: "Dashboard",
+        drivers: "Drivers",
+        trucks: "Trucks",
+        trips: "Trips",
+        alerts: "Alerts",
+        company: "Company",
+        customer: "Customer",
+        reports: "Reports",
+        settings: "Settings",
+        logout: "Logout"
+      },
+
       // Trips Page
       trips: {
-          tripNumber: "Trip Number",
+        tripNumber: "Trip Number",
         truckNumber: "Truck Number",
-        "tripStarted": "Trip Started",
+        tripStarted: "Trip Started",
         progress: "Progress",
         title: "Trip Management",
         description: "Monitor active shipments and real-time movement.",
@@ -179,16 +223,15 @@ const resources = {
         driverName: "DRIVER NAME",
         route: "ROUTE",
         viewProofOfDelivery: "View Proof of Delivery",
-      deliveryPicture: "Delivery Picture",
-      podNotUploaded: "Proof of Delivery not uploaded",
+        deliveryPicture: "Delivery Picture",
+        podNotUploaded: "Proof of Delivery not uploaded",
         status: "STATUS",
         action: "ACTION",
-          actualTripStartedAt: "Actual Trip Started At",
-  originPickupTime: "Origin Pickup Time",
-  actualStartTime: "Actual Start Time",
-  originalDeliveryTime: "Original Delivery Time",
-  AIarrivalDateTime: "AI Arrival Date & Time",
-
+        actualTripStartedAt: "Actual Trip Started At",
+        originPickupTime: "Origin Pickup Time",
+        actualStartTime: "Actual Start Time",
+        originalDeliveryTime: "Original Delivery Time",
+        AIarrivalDateTime: "AI Arrival Date & Time",
         viewProfile: "View Details",
         tripProfile: "Trip Profile",
         editTrip: "Edit Trip",
@@ -261,7 +304,7 @@ const resources = {
       // Status values
       status: {
         idle: "Idle",
-         delayed_delivered: "Delayed Delivery",
+        delayed_delivered: "Delayed Delivery",
         assigned: "Assigned",
         in_progress: "In Progress",
         stopped: "Stopped",
@@ -370,116 +413,108 @@ const resources = {
         removing: "Removing...",
         deleteConfirm: "Are you sure you want to delete this truck? This action is permanent."
       },
-           driverDashboard: {
-  welcomeBack: "Welcome back,",
-  statusLabel: "Status",
-  checkingActiveTrips: "Checking for active trips...",
-  activeTrip: "Active Trip",
-  assignedTripsTitle: "You have assigned trips",
-  assignedTripsSubtitle: "Check your trips tab to start",
-  overview: "Overview",
-  totalTrips: "Total Trips",
-  assigned: "Assigned",
-  completed: "Completed",
-  delayed: "Delayed",
-  upcomingTrips: "Upcoming Trips"
-},
-    profile: {
-  title: "Profile",
-  changePassword: "Change Password",
-  currentPassword: "Current Password",
-  newPassword: "New Password",
-  confirmPassword: "Confirm Password",
-  updatePassword: "Update Password",
-  passwordUpdated: "Password updated successfully",
-  passwordMismatch: "Passwords do not match",
-  role: "Driver",
-  accountInfo: "Account Information",
-  email: "Email",
-  contact: "User contact",
-  roleLabel: "Role",
-  backToDashboard: "Back to Dashboard",
-  logout: "Logout",
-  logoutSuccessTitle: "Logged out",
-  logoutSuccessDesc: "You have been successfully logged out",
-  logoutErrorTitle: "Logout failed",
-  logoutErrorDesc: "An error occurred while logging out",
-  language: "Language",
-  english: "English",
-  spanish: "Spanish"
-},
-driverTrips: {
-  title: "My Trips",
-  assigned: "Assigned",
-  completed: "Completed",
-  loading: "Loading trips...",
-  noAssignedTitle: "No assigned trips",
-  noAssignedDesc: "New trips will appear here when assigned",
-  noCompletedTitle: "No completed trips",
-  noCompletedDesc: "Completed trips will appear here",
-  onTime: "On time",
-  delayedBy: "Delayed by {{minutes}} min"
-},
-driverTruck: {
-  title: "My Truck",
-  loading: "Loading truck details...",
-  noTruckTitle: "No Truck Assigned",
-  noTruckDesc: "A truck will be assigned when you have a trip",
 
-  status: {
-    active: "Active",
-    assigned: "Assigned",
-    idle: "Idle",
-     Delayed_delivered: "Delayed Delivery",
+      driverDashboard: {
+        welcomeBack: "Welcome back,",
+        statusLabel: "Status",
+        checkingActiveTrips: "Checking for active trips...",
+        activeTrip: "Active Trip",
+        assignedTripsTitle: "You have assigned trips",
+        assignedTripsSubtitle: "Check your trips tab to start",
+        overview: "Overview",
+        totalTrips: "Total Trips",
+        assigned: "Assigned",
+        completed: "Completed",
+        delayed: "Delayed",
+        upcomingTrips: "Upcoming Trips"
+      },
+
+      profile: {
+        title: "Profile",
+        changePassword: "Change Password",
+        currentPassword: "Current Password",
+        newPassword: "New Password",
+        confirmPassword: "Confirm Password",
+        updatePassword: "Update Password",
+        passwordUpdated: "Password updated successfully",
+        passwordMismatch: "Passwords do not match",
+        role: "Driver",
+        accountInfo: "Account Information",
+        email: "Email",
+        contact: "User contact",
+        roleLabel: "Role",
+        backToDashboard: "Back to Dashboard",
+        logout: "Logout",
+        logoutSuccessTitle: "Logged out",
+        logoutSuccessDesc: "You have been successfully logged out",
+        logoutErrorTitle: "Logout failed",
+        logoutErrorDesc: "An error occurred while logging out",
+        language: "Language",
+        english: "English",
+        spanish: "Spanish"
+      },
+
+      driverTrips: {
+        title: "My Trips",
+        assigned: "Assigned",
+        completed: "Completed",
+        loading: "Loading trips...",
+        noAssignedTitle: "No assigned trips",
+        noAssignedDesc: "New trips will appear here when assigned",
+        noCompletedTitle: "No completed trips",
+        noCompletedDesc: "Completed trips will appear here",
+        onTime: "On time",
+        delayedBy: "Delayed by {{minutes}} min"
+      },
+
+      driverTruck: {
+        title: "My Truck",
+        loading: "Loading truck details...",
+        noTruckTitle: "No Truck Assigned",
+        noTruckDesc: "A truck will be assigned when you have a trip",
+        status: {
+          active: "Active",
+          assigned: "Assigned",
+          idle: "Idle",
+          Delayed_delivered: "Delayed Delivery"
+        },
+        currentTrip: "Current Trip",
+        tripNumber: "Trip Number",
+        from: "From",
+        to: "To",
+        cargo: "Cargo Description",
+        vehicleDetails: "Vehicle Details",
+        licensePlate: "License Plate",
+        model: "Model",
+        statusLabel: "Status"
+      },
+
+      driverTripDetails: {
+        title: "Trip Details",
+        backToTrips: "Back to Trips",
+        loading: "Loading trip...",
+        startTrip: "Start Trip",
+        completeTrip: "Complete Trip",
+        tripStarted: "Trip started 🚛",
+        tripCompleted: "Trip completed 🎉",
+        completionFailed: "Completion failed",
+        documentsRequired: "Documents required",
+        uploadBothDocs: "Upload both documents first",
+        proofUploaded: "Proof uploaded",
+        pictureUploaded: "Picture uploaded",
+        cargo: "Cargo",
+        estimated: "Estimated",
+        truck: "Truck",
+        proofOfDelivery: "Proof of Delivery",
+        deliveryPicture: "Delivery Picture",
+        clickToUpload: "Click to upload",
+        tripNumber: "Trip Number",
+        from: "From",
+        to: "To"
+      }
+    }
   },
 
-  currentTrip: "Current Trip",
-  tripNumber: "Trip Number",
-  from: "From",
-  to: "To",
-  cargo: "Cargo Description",
-
-  vehicleDetails: "Vehicle Details",
-  licensePlate: "License Plate",
-  model: "Model",
-  statusLabel: "Status"
-},
-driverTripDetails: {
-  title: "Trip Details",
-  backToTrips: "Back to Trips",
-
-  loading: "Loading trip...",
-  startTrip: "Start Trip",
-  completeTrip: "Complete Trip",
-
-  tripStarted: "Trip started 🚛",
-  tripCompleted: "Trip completed 🎉",
-  completionFailed: "Completion failed",
-
-  documentsRequired: "Documents required",
-  uploadBothDocs: "Upload both documents first",
-
-  proofUploaded: "Proof uploaded",
-  pictureUploaded: "Picture uploaded",
-
-  cargo: "Cargo",
-  estimated: "Estimated",
-  truck: "Truck",
-
-  proofOfDelivery: "Proof of Delivery",
-  deliveryPicture: "Delivery Picture",
-  clickToUpload: "Click to upload",
-
-  tripNumber: "Trip Number",
-  from: "From",
-  to: "To"
-}
-
-
-
-    },
-  
-  },
   'es-MX': {
     translation: {
       // Settings Page
@@ -529,7 +564,6 @@ driverTripDetails: {
         noActiveTrips: "No hay viajes activos"
       },
 
-      
       // Drivers Page
       drivers: {
         title: "Conductores de Flota",
@@ -629,22 +663,73 @@ driverTripDetails: {
         removing: "Eliminando...",
         deleteConfirm: "¿Está seguro de que desea eliminar este camión? Esta acción es permanente."
       },
-sidebar: {
-  dashboard: "Tablero",
-  drivers: "Conductores",
-  trucks: "Camiones",
-  trips: "Viajes",
-  alerts: "Alertas",
-  reports: "Reportes",
-  settings: "Configuración",
-  logout: "Cerrar sesión"
-},
+
+      // Customers Page
+      customers: {
+        title: "Clientes",
+        subtitle: "Empresas e individuos que pagan por los envíos",
+        addCustomer: "Agregar Cliente",
+        searchPlaceholder: "Buscar por nombre o RFC",
+        table: {
+          businessName: "Razón Social",
+          rfc: "RFC",
+          paymentTerms: "Condiciones de Pago",
+          status: "Estatus",
+          action: "Acción",
+          viewProfile: "Ver Perfil",
+          shippingOverview: "Resumen de Envíos",
+        totalLoads: "Cargas Totales",
+        activeTrips: "Viajes Activos",
+        financialTerms: "Términos Financieros"
+        },
+        status: {
+          active: "Activo",
+          on_hold: "En Pausa",
+          blacklisted: "Lista Negra"
+        },
+        profileSheet: "Perfil del Cliente"
+      },
+
+      // Companies Page
+      companies: {
+        title: "Empresas",
+        subtitle: "Socios de flota externos",
+        addCompany: "Agregar Empresa",
+        searchPlaceholder: "Buscar por nombre o RFC",
+        table: {
+          businessName: "Razón Social",
+          rfc: "RFC",
+          contact: "Contacto",
+          status: "Estatus",
+          action: "Acción",
+          viewProfile: "Ver Perfil"
+        },
+        status: {
+          active: "Activo",
+          inactive: "Inactivo"
+        },
+        profileSheet: "Perfil de la Empresa"
+      },
+
+      sidebar: {
+        dashboard: "Tablero",
+        drivers: "Conductores",
+        customer: "Clientes",
+        company: "Empresa",
+        trucks: "Camiones",
+        trips: "Viajes",
+        alerts: "Alertas",
+        reports: "Reportes",
+        settings: "Configuración",
+        logout: "Cerrar sesión"
+      },
+
       // Trips Page
       trips: {
-          truckNumber: "Número de Camión",
-          tripNumber: "Número de Viaje",
-           "tripStarted": "Viaje iniciado",
-          progress: "Progreso",
+        truckNumber: "Número de Camión",
+        tripNumber: "Número de Viaje",
+        tripStarted: "Viaje iniciado",
+        progress: "Progreso",
         title: "Gestión de Viajes",
         description: "Monitorear envíos activos y movimiento en tiempo real.",
         createTrip: "Crear Viaje",
@@ -655,10 +740,10 @@ sidebar: {
         status: "ESTADO",
         action: "ACCIÓN",
         actualTripStartedAt: "Inicio real del viaje",
-  originPickupTime: "Hora de recogida en origen",
-  actualStartTime: "Hora real de inicio",
-  originalDeliveryTime: "Hora original de entrega",
-  AIarrivalDateTime: "Fecha y hora de llegada (IA)",
+        originPickupTime: "Hora de recogida en origen",
+        actualStartTime: "Hora real de inicio",
+        originalDeliveryTime: "Hora original de entrega",
+        AIarrivalDateTime: "Fecha y hora de llegada (IA)",
         viewProofOfDelivery: "Ver Comprobante de Entrega",
         deliveryPicture: "Imagen de Entrega",
         podNotUploaded: "Comprobante de entrega no cargado",
@@ -734,7 +819,7 @@ sidebar: {
       // Status values
       status: {
         idle: "Inactivo",
-         delayed_delivered: "Entrega retrasada",
+        delayed_delivered: "Entrega retrasada",
         assigned: "Asignado",
         in_progress: "En Progreso",
         stopped: "Detenido",
@@ -770,6 +855,7 @@ sidebar: {
         search: "Buscar",
         filter: "Filtrar",
         loading: "Cargando...",
+        contactDetails: "Detalles de Contacto",
         noResults: "No se encontraron resultados",
         confirm: "Confirmar",
         close: "Cerrar"
@@ -820,8 +906,7 @@ sidebar: {
 
       // Truck Details Sheet
       truckDetails: {
-          licensePlate: "Placa",
-
+        licensePlate: "Placa",
         title: "Perfil del Camión",
         liveStatus: "Estado en Vivo",
         primaryDriver: "Conductor Principal",
@@ -844,112 +929,104 @@ sidebar: {
         removing: "Eliminando...",
         deleteConfirm: "¿Está seguro de que desea eliminar este camión? Esta acción es permanente."
       },
- 
-driverDashboard: {
-  welcomeBack: "Bienvenido de nuevo,",
-  statusLabel: "Estado",
-  checkingActiveTrips: "Verificando viajes activos...",
-  activeTrip: "Viaje Activo",
-  assignedTripsTitle: "Tienes viajes asignados",
-  assignedTripsSubtitle: "Revisa la pestaña de viajes para comenzar",
-  overview: "Resumen",
-  totalTrips: "Viajes Totales",
-  assigned: "Asignados",
-  completed: "Completados",
-  delayed: "Retrasados",
-  upcomingTrips: "Próximos Viajes"
-},
-profile: {
-  title: "Perfil",
-  role: "Conductor",
-   changePassword: "Cambiar contraseña",
-  currentPassword: "Contraseña actual",
-  newPassword: "Nueva contraseña",
-  confirmPassword: "Confirmar contraseña",
-  updatePassword: "Actualizar contraseña",
-  passwordUpdated: "Contraseña actualizada correctamente",
-  passwordMismatch: "Las contraseñas no coinciden",
-  accountInfo: "Información de la Cuenta",
-  email: "Correo Electrónico",
-  contact: "Contacto del Usuario",
-  roleLabel: "Rol",
-  backToDashboard: "Volver al Tablero",
-  logout: "Cerrar sesión",
-  logoutSuccessTitle: "Sesión cerrada",
-  logoutSuccessDesc: "Has cerrado sesión correctamente",
-  logoutErrorTitle: "Error al cerrar sesión",
-  logoutErrorDesc: "Ocurrió un error al cerrar sesión",
-  language: "Idioma",
-  english: "Inglés",
-  spanish: "Español"
-},
-driverTrips: {
-  title: "Mis Viajes",
-  assigned: "Asignados",
-  completed: "Completados",
-  loading: "Cargando viajes...",
-  noAssignedTitle: "No hay viajes asignados",
-  noAssignedDesc: "Los nuevos viajes aparecerán aquí cuando sean asignados",
-  noCompletedTitle: "No hay viajes completados",
-  noCompletedDesc: "Los viajes completados aparecerán aquí",
-  onTime: "A tiempo",
-  delayedBy: "Retrasado por {{minutes}} min"
-},
-driverTruck: {
-  title: "Mi Camión",
-  loading: "Cargando detalles del camión...",
-  noTruckTitle: "No hay camión asignado",
-  noTruckDesc: "Se asignará un camión cuando tengas un viaje",
 
-  status: {
-    active: "Activo",
-    assigned: "Asignado",
-    idle: "Inactivo"
-  },
+      driverDashboard: {
+        welcomeBack: "Bienvenido de nuevo,",
+        statusLabel: "Estado",
+        checkingActiveTrips: "Verificando viajes activos...",
+        activeTrip: "Viaje Activo",
+        assignedTripsTitle: "Tienes viajes asignados",
+        assignedTripsSubtitle: "Revisa la pestaña de viajes para comenzar",
+        overview: "Resumen",
+        totalTrips: "Viajes Totales",
+        assigned: "Asignados",
+        completed: "Completados",
+        delayed: "Retrasados",
+        upcomingTrips: "Próximos Viajes"
+      },
 
-  currentTrip: "Viaje Actual",
-  tripNumber: "Número de Viaje",
-  from: "Desde",
-  to: "Hasta",
-  cargo: "Descripción de la Carga",
+      profile: {
+        title: "Perfil",
+        role: "Conductor",
+        changePassword: "Cambiar contraseña",
+        currentPassword: "Contraseña actual",
+        newPassword: "Nueva contraseña",
+        confirmPassword: "Confirmar contraseña",
+        updatePassword: "Actualizar contraseña",
+        passwordUpdated: "Contraseña actualizada correctamente",
+        passwordMismatch: "Las contraseñas no coinciden",
+        accountInfo: "Información de la Cuenta",
+        email: "Correo Electrónico",
+        contact: "Contacto del Usuario",
+        roleLabel: "Rol",
+        backToDashboard: "Volver al Tablero",
+        logout: "Cerrar sesión",
+        logoutSuccessTitle: "Sesión cerrada",
+        logoutSuccessDesc: "Has cerrado sesión correctamente",
+        logoutErrorTitle: "Error al cerrar sesión",
+        logoutErrorDesc: "Ocurrió un error al cerrar sesión",
+        language: "Idioma",
+        english: "Inglés",
+        spanish: "Español"
+      },
 
-  vehicleDetails: "Detalles del Vehículo",
-  licensePlate: "Placa",
-  model: "Modelo",
-  statusLabel: "Estado"
-},
-driverTripDetails: {
-  title: "Detalles del Viaje",
-  backToTrips: "Volver a Viajes",
+      driverTrips: {
+        title: "Mis Viajes",
+        assigned: "Asignados",
+        completed: "Completados",
+        loading: "Cargando viajes...",
+        noAssignedTitle: "No hay viajes asignados",
+        noAssignedDesc: "Los nuevos viajes aparecerán aquí cuando sean asignados",
+        noCompletedTitle: "No hay viajes completados",
+        noCompletedDesc: "Los viajes completados aparecerán aquí",
+        onTime: "A tiempo",
+        delayedBy: "Retrasado por {{minutes}} min"
+      },
 
-  loading: "Cargando viaje...",
-  startTrip: "Iniciar Viaje",
-  completeTrip: "Completar Viaje",
+      driverTruck: {
+        title: "Mi Camión",
+        loading: "Cargando detalles del camión...",
+        noTruckTitle: "No hay camión asignado",
+        noTruckDesc: "Se asignará un camión cuando tengas un viaje",
+        status: {
+          active: "Activo",
+          assigned: "Asignado",
+          idle: "Inactivo"
+        },
+        currentTrip: "Viaje Actual",
+        tripNumber: "Número de Viaje",
+        from: "Desde",
+        to: "Hasta",
+        cargo: "Descripción de la Carga",
+        vehicleDetails: "Detalles del Vehículo",
+        licensePlate: "Placa",
+        model: "Modelo",
+        statusLabel: "Estado"
+      },
 
-  tripStarted: "Viaje iniciado 🚛",
-  tripCompleted: "Viaje completado 🎉",
-  completionFailed: "Error al completar",
-
-  documentsRequired: "Documentos requeridos",
-  uploadBothDocs: "Sube ambos documentos primero",
-
-  proofUploaded: "Comprobante subido",
-  pictureUploaded: "Imagen subida",
-
-  cargo: "Carga",
-  estimated: "Estimado",
-  truck: "Camión",
-
-  proofOfDelivery: "Comprobante de Entrega",
-  deliveryPicture: "Imagen de Entrega",
-  clickToUpload: "Haz clic para subir",
-
-  tripNumber: "Número de Viaje",
-  from: "Desde",
-  to: "Hasta"
-}
-
-
+      driverTripDetails: {
+        title: "Detalles del Viaje",
+        backToTrips: "Volver a Viajes",
+        loading: "Cargando viaje...",
+        startTrip: "Iniciar Viaje",
+        completeTrip: "Completar Viaje",
+        tripStarted: "Viaje iniciado 🚛",
+        tripCompleted: "Viaje completado 🎉",
+        completionFailed: "Error al completar",
+        documentsRequired: "Documentos requeridos",
+        uploadBothDocs: "Sube ambos documentos primero",
+        proofUploaded: "Comprobante subido",
+        pictureUploaded: "Imagen subida",
+        cargo: "Carga",
+        estimated: "Estimado",
+        truck: "Camión",
+        proofOfDelivery: "Comprobante de Entrega",
+        deliveryPicture: "Imagen de Entrega",
+        clickToUpload: "Haz clic para subir",
+        tripNumber: "Número de Viaje",
+        from: "Desde",
+        to: "Hasta"
+      }
     }
   }
 };

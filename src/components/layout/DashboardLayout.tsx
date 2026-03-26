@@ -13,7 +13,9 @@ import {
   FileText,
   Settings,
   LogOut,
-  Menu
+  Menu,
+  Building2,
+  User2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -25,9 +27,13 @@ const menuItems = [
   { icon: LayoutDashboard, labelKey: 'sidebar.dashboard', path: '/dashboard' },
   { icon: Users, labelKey: 'sidebar.drivers', path: '/drivers' },
   { icon: Truck, labelKey: 'sidebar.trucks', path: '/trucks' },
+  { icon: Building2, labelKey: 'sidebar.company', path: '/company' },
+  { icon: User2, labelKey: 'sidebar.customer', path: '/customer' },
   { icon: Route, labelKey: 'sidebar.trips', path: '/trips' },
   { icon: AlertTriangle, labelKey: 'sidebar.alerts', path: '/alerts' },
+  { icon: FileText, labelKey: 'sidebar.agreements', path: '/agreements' },
   // { icon: FileText, labelKey: 'sidebar.reports', path: '/reports' },
+  
   { icon: Settings, labelKey: 'sidebar.settings', path: '/settings' }
 ];
 

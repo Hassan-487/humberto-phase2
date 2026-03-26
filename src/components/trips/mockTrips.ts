@@ -1,0 +1,43 @@
+export const MOCK_TRIPS = [
+  {
+    id: "TRP-001",
+    customer: "Coca Cola Mexico",
+    route: "Manzanillo → Monterrey",
+    tripType: "Round Trip",
+    trailerMode: "Full",
+    trailerType: "Container",
+    pickupAddress: "Manzanillo Port Terminal",
+    deliveryAddress: "Monterrey Industrial Zone",
+    distance: 910,
+    price: 42000,
+    status: "scheduled",
+  },
+  {
+    id: "TRP-002",
+    customer: "Amazon Logistics",
+    route: "Guadalajara → Tijuana",
+    tripType: "One Way",
+    trailerMode: "Single",
+    trailerType: "Dry Box",
+    pickupAddress: "Guadalajara Warehouse",
+    deliveryAddress: "Tijuana Distribution Center",
+    distance: 2200,
+    price: 76000,
+    status: "scheduled",
+  },
+  {
+    id: "TRP-003",
+    customer: "Walmart Mexico",
+    route: "Mexico City → Monterrey",
+    tripType: "One Way",
+    trailerMode: "Single",
+    trailerType: "Platform",
+    pickupAddress: "Mexico City Port",
+    deliveryAddress: "Monterrey Depot",
+    distance: 900,
+    price: 35000,
+    status: "scheduled",
+  },
+];
+
+

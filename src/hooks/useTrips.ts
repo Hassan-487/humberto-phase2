@@ -57,6 +57,33 @@ export function useCancelTrip() {
   });
 }
 
+export function useAssignTrip() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      tripService.assignTrip(id, payload),
+
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: tripKeys.lists() });
+    },
+  });
+}
+
+export function usePreExpenses() {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      tripService.addPreExpenses(id, payload),
+  });
+}
+
+export function useUploadStartDocuments() {
+  return useMutation({
+    mutationFn: (formData: FormData) =>
+      tripService.uploadStartDocuments(formData),
+  });
+}
+
 export function useDeleteTrip() {
   const queryClient = useQueryClient();
 

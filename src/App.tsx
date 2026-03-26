@@ -17,6 +17,7 @@ import Trips from "./pages/Trips";
 import Alerts from "./pages/Alerts";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import Agreements from "./pages/Agreements";
 
 // Driver Pages
 import DriverDashboard from "./pages/driver/DriverDashboard";
@@ -24,7 +25,8 @@ import DriverTrips from "./pages/driver/DriverTrips";
 import TripDetails from "./pages/driver/TripDetails";
 import TruckScreen from "./pages/driver/TruckScreen";
 import Profile from "./pages/driver/Profile";
-
+import Company from "./pages/Company";
+import Customers from "./pages/Customers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -58,6 +60,9 @@ const App = () => (
             <Route path="/trips" element={<AdminRoute><Trips /></AdminRoute>} />
             <Route path="/alerts" element={<AdminRoute><Alerts /></AdminRoute>} />
             {/* <Route path="/reports" element={<AdminRoute><Reports /></AdminRoute>} /> */}
+            <Route path="/customer" element={<AdminRoute><Customers /></AdminRoute>} />
+            <Route path="/agreements" element={<AdminRoute><Agreements /></AdminRoute>} />
+              <Route path="/company" element={<AdminRoute><Company /></AdminRoute>} />
             <Route path="/settings" element={<AdminRoute><Settings /></AdminRoute>} />
 
             {/* Driver Routes */}

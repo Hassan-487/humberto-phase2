@@ -21,7 +21,7 @@ const getStatusBadgeClass = (status: string) => {
       return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
     case "assigned":
       return "bg-blue-500/10 text-blue-600 border-blue-200";
-    case "in_progress":
+    case "in_transit":
       return "bg-purple-700/15 text-purple-800 border-purple-400";
     case "stopped":
       return "bg-red-500/10 text-red-600 border-red-200";

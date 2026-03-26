@@ -135,23 +135,69 @@ tripDocuments: {
   };
 };
 
+// export const tripService = {
+//   async getTrips(): Promise<Trip[]> {
+//     const res = await apiClient.get(TRIP_API.LIST);
+//     return (res.data.data || []).map(mapBackendTrip);
+//   },
+//   async createTrip(payload: any) {
+//     const res = await apiClient.post(TRIP_API.CREATE, payload);
+//     return mapBackendTrip(res.data.data[0] || res.data.data);
+//   },
+//   async updateTrip(id: string, payload: any) {
+//     const res = await apiClient.patch(TRIP_API.UPDATE(id), payload);
+//     return mapBackendTrip(res.data.data);
+//   },
+ 
+//   async cancelTrip(id: string) {
+//     const res = await apiClient.delete(TRIP_API.CANCEL(id));
+//     return mapBackendTrip(res.data.data);
+//   },
+
+//   async deleteTrip(id: string) {
+//     return await apiClient.delete(TRIP_API.DELETE(id));
+//   },
+// };
 export const tripService = {
   async getTrips(): Promise<Trip[]> {
     const res = await apiClient.get(TRIP_API.LIST);
     return (res.data.data || []).map(mapBackendTrip);
   },
+
   async createTrip(payload: any) {
     const res = await apiClient.post(TRIP_API.CREATE, payload);
-    return mapBackendTrip(res.data.data[0] || res.data.data);
+    return res.data.data;
   },
+
+  async assignTrip(id: string, payload: any) {
+    const res = await apiClient.patch(TRIP_API.ASSIGN(id), payload);
+    return res.data.data;
+  },
+
+  async addPreExpenses(id: string, payload: any) {
+    const res = await apiClient.patch(TRIP_API.PRE_EXPENSE(id), payload);
+    return res.data.data;
+  },
+
+  async uploadStartDocuments(formData: FormData) {
+    const res = await apiClient.post(
+      TRIP_API.START_DOCUMENTS,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return res.data.data;
+  },
+
   async updateTrip(id: string, payload: any) {
     const res = await apiClient.patch(TRIP_API.UPDATE(id), payload);
     return mapBackendTrip(res.data.data);
   },
- 
+
   async cancelTrip(id: string) {
     const res = await apiClient.delete(TRIP_API.CANCEL(id));
-    return mapBackendTrip(res.data.data);
+    return res.data.data;
   },
 
   async deleteTrip(id: string) {
