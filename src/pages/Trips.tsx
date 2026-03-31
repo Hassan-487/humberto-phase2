@@ -1,20 +1,20 @@
+
+
 import { useState, useEffect } from "react";
 import { Plus, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_TRIPS, Trip } from "@/data/mockTripData";
-//import { MOCK_TRIPS } from "@/data/mockTripData";
 import { STATUS_BADGE_STYLES, STATUS_LABELS } from "@/lib/tripStatusUtils";
 import { TripDetailPage } from "@/components/trips/TripDetailSheet";
 import { CreateTripPage } from "@/components/trips/CreateTripDialog";
+import { useTrips } from "@/hooks/useTrips";
+import { Trip } from "@/services/trip.service";
 
 export default function Trips() {
+  const { data: trips = [], isLoading } = useTrips();
 
-  // const [trips, setTrips] = useState(MOCK_TRIPS);
-  // const [selectedTrip, setSelectedTrip] = useState<typeof MOCK_TRIPS[0] | null>(null);
-const [trips, setTrips] = useState<Trip[]>([...MOCK_TRIPS]);
-const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
+  const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -22,16 +22,16 @@ const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
   const ITEMS_PER_PAGE = 10;
 
   // 🔎 Search Filter
-  const filtered = trips.filter((t) => {
-  const term = searchTerm.toLowerCase();
+  const filtered = trips.filter((t: any) => {
+    const term = searchTerm.toLowerCase();
 
-  return (
-    t.tripNumber.toLowerCase().includes(term) ||
-    t.truck.toLowerCase().includes(term) ||
-    t.driver.toLowerCase().includes(term) ||
-    t.customer.toLowerCase().includes(term)
-  );
-});
+    return (
+      t.tripNumber?.toLowerCase().includes(term) ||
+      t.truck?.toLowerCase().includes(term) ||
+      t.driver?.toLowerCase().includes(term) ||
+      (t.customer || "").toLowerCase().includes(term)
+    );
+  });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
 
@@ -44,25 +44,20 @@ const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
     setPage(1);
   }, [searchTerm]);
 
-  // 🔄 Status Update
+  // 🔄 Status Update (local UI only)
   const handleStatusUpdate = (tripNumber: string, newStatus: string) => {
-
-    setTrips((prev) =>
-      prev.map((t) =>
-        t.tripNumber === tripNumber
-          ? { ...t, status: newStatus }
-          : t
-      )
-    );
-
     if (selectedTrip?.tripNumber === tripNumber) {
       setSelectedTrip((prev) =>
         prev ? { ...prev, status: newStatus } : prev
       );
     }
   };
-console.log(trips);
-console.log("MOCK_TRIPS:", MOCK_TRIPS);
+
+  // 🔄 Loading State
+  if (isLoading) {
+    return <div className="p-6">Loading trips...</div>;
+  }
+
   // ───────── Trip Detail Page ─────────
   if (selectedTrip) {
     return (
@@ -109,7 +104,6 @@ console.log("MOCK_TRIPS:", MOCK_TRIPS);
         </Button>
       </div>
 
-
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -122,68 +116,54 @@ console.log("MOCK_TRIPS:", MOCK_TRIPS);
         />
       </div>
 
-
       {/* Table */}
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
-
         <div className="overflow-x-auto">
-
           <table className="w-full text-sm">
 
-            {/* Table Header */}
+            {/* Header */}
             <thead>
-
               <tr className="bg-muted/40 border-b text-muted-foreground text-xs uppercase tracking-wide font-semibold">
-
                 <th className="p-4 text-left">Trip #</th>
-                <th className="p-4 text-left">Booking #</th>
+                {/* <th className="p-4 text-left">Booking #</th> */}
                 <th className="p-4 text-left">Customer</th>
                 <th className="p-4 text-left">Truck</th>
                 <th className="p-4 text-left">Driver</th>
                 <th className="p-4 text-left">Route</th>
                 <th className="p-4 text-left">Pickup Time</th>
                 <th className="p-4 text-left">Destination Time</th>
-                <th className="p-4 text-left">Containers</th>
+                <th className="p-4 text-left">Total Containers</th>
                 <th className="p-4 text-left">LFD</th>
                 <th className="p-4 text-left">Progress</th>
                 <th className="p-4 text-left">Status</th>
                 <th className="p-4 text-right">Action</th>
-
               </tr>
-
             </thead>
 
-
-            {/* Table Body */}
+            {/* Body */}
             <tbody className="divide-y divide-border/60">
-
               {paginated.length === 0 ? (
-
                 <tr>
                   <td colSpan={13} className="p-12 text-center text-muted-foreground">
                     No trips found.
                   </td>
                 </tr>
-
               ) : (
-
-                paginated.map((trip) => (
-
+                paginated.map((trip: any) => (
                   <tr
-                    key={trip.tripNumber}
-                    className="hover:bg-muted/20 transition-colors group"
+                    key={trip.id}
+                    className="hover:bg-muted/20 transition-colors"
                   >
-
                     <td className="p-4 font-bold text-foreground">
                       {trip.tripNumber}
                     </td>
 
-                    <td className="p-4">
-                      {trip.bookingNumber}
-                    </td>
+                    {/* <td className="p-4">
+                      {trip.bookingNumber || "-"}
+                    </td> */}
 
                     <td className="p-4">
-                      {trip.customer}
+                      {trip.customer || "-"}
                     </td>
 
                     <td className="p-4">
@@ -199,100 +179,75 @@ console.log("MOCK_TRIPS:", MOCK_TRIPS);
                     </td>
 
                     <td className="p-4 text-xs">
-                      {trip.pickupTime}
+                      {trip.pickupTime || "-"}
                     </td>
 
                     <td className="p-4 text-xs">
-                      {trip.destinationTime}
+                      {trip.destinationTime || "-"}
                     </td>
 
                     <td className="p-4">
-                      {trip.containers}
+                      {trip.containers || 0}
                     </td>
 
                     <td className="p-4">
-                      {trip.LFD}
+                      {trip.LFD || "-"}
                     </td>
-
 
                     {/* Progress */}
                     <td className="p-4">
-
                       <div className="w-28">
-
                         <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-
                           <div
                             className="h-full bg-emerald-500 rounded-full transition-all"
-                            style={{ width: `${trip.progress}%` }}
+                            style={{ width: `${trip.progress || 0}%` }}
                           />
-
                         </div>
 
                         <p className="text-[10px] mt-1 text-muted-foreground">
-                          {trip.progress}%
+                          {trip.progress || 0}%
                         </p>
-
                       </div>
-
                     </td>
-
 
                     {/* Status */}
                     <td className="p-4">
-
                       <Badge
                         variant="outline"
                         className={`text-xs rounded-full capitalize ${STATUS_BADGE_STYLES[trip.status]}`}
                       >
                         {STATUS_LABELS[trip.status] ?? trip.status}
                       </Badge>
-
                     </td>
 
-
-                    {/* Action */}
+                    {/* ✅ Action (NO HOVER NOW) */}
                     <td className="p-4 text-right">
-
                       <Button
                         variant="outline"
                         size="sm"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={() => setSelectedTrip(trip)}
                       >
                         View Detail
                       </Button>
-
                     </td>
-
                   </tr>
-
                 ))
-
               )}
-
             </tbody>
 
           </table>
-
         </div>
-
       </div>
-
 
       {/* Pagination */}
       <div className="flex items-center justify-between">
-
         <p className="text-xs text-muted-foreground">
-
           Showing {Math.min((page - 1) * ITEMS_PER_PAGE + 1, filtered.length)}
           –
           {Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length} trips
-
         </p>
 
         <div className="flex items-center gap-2">
-
           <Button
             size="sm"
             variant="outline"
@@ -314,9 +269,7 @@ console.log("MOCK_TRIPS:", MOCK_TRIPS);
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-
         </div>
-
       </div>
 
     </div>

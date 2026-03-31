@@ -11,7 +11,8 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-            target: "http://192.168.18.15:5000",
+            //target: "http://192.168.18.15:5000",
+            target: "http://51.20.94.243",
            //target: "http://localhost:5000",
          // target:"https://0808-39-45-100-6.ngrok-free.app",
         changeOrigin: true,

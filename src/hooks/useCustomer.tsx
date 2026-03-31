@@ -18,8 +18,6 @@ export function useCustomers() {
     staleTime: 2 * 60 * 1000,
   });
 
-  /* ================= CREATE ================= */
-
   const createMutation = useMutation({
     mutationFn: customerService.createCustomer,
     onSuccess: () => {
@@ -27,7 +25,20 @@ export function useCustomers() {
     },
   });
 
-  /* ================= UPLOAD ================= */
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      customerService.updateCustomer(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: customerKeys.list() });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => customerService.deleteCustomer(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: customerKeys.list() });
+    },
+  });
 
   const uploadMutation = useMutation({
     mutationFn: customerService.uploadCustomerDocuments,
@@ -38,6 +49,8 @@ export function useCustomers() {
     loading: query.isLoading,
 
     createCustomer: createMutation.mutateAsync,
+    updateCustomer: updateMutation.mutateAsync,
+    deleteCustomer: deleteMutation.mutateAsync,
     uploadCustomerDocuments: uploadMutation.mutateAsync,
   };
 }

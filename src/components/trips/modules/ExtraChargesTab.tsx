@@ -1,6 +1,3 @@
-// modules/ExtraChargesTab.tsx
-// Merged Module 8 (Customer Extra Costs) + Module 10 (Additional Trip Costs)
-// Presented as two clearly labelled sections within one tab.
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -10,14 +7,15 @@ import {
   ModuleSection, FormGrid, Field,
 } from "@/components/trips/ModuleFormComponents";
 import { Trip } from "@/data/mockTripData";
-import { DollarSign, Wrench, Receipt } from "lucide-react";
+import { DollarSign, Wrench, Receipt, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useExtraCosts, useAdditionalCosts } from "@/hooks/useTrips";
 
 interface ExtraChargesTabProps {
   trip: Trip;
   onUpdate: (d: any) => void;
 }
 
-// Merge both modules into a single state shape
 function buildInitialState(trip: Trip) {
   return {
     // ── Section 1: Customer Extra Costs (M8) ──
@@ -25,20 +23,22 @@ function buildInitialState(trip: Trip) {
     otherExtraCosts: (trip.customerExtraCosts as any)?.otherExtraCosts ?? [],
 
     // ── Section 2: Operational Additional Costs (M10) ──
-    localFreightFee:            (trip.additionalCosts as any)?.localFreightFee ?? 0,
-    localFreightLocation:       (trip.additionalCosts as any)?.localFreightLocation ?? "",
-    localCarrierName:           (trip.additionalCosts as any)?.localCarrierName ?? "",
-    containerHandlingCompany:   (trip.additionalCosts as any)?.containerHandlingCompany ?? "",
-    roadServiceCost:            (trip.additionalCosts as any)?.roadServiceCost ?? 0,
-    roadServiceCompany:         (trip.additionalCosts as any)?.roadServiceCompany ?? "",
-    roadServiceDescription:     (trip.additionalCosts as any)?.roadServiceDescription ?? "",
+    localFreightFee: (trip.additionalCosts as any)?.localFreightFee ?? 0,
+    localFreightLocation: (trip.additionalCosts as any)?.localFreightLocation ?? "",
+    localCarrierName: (trip.additionalCosts as any)?.localCarrierName ?? "",
+    containerHandlingCompany: (trip.additionalCosts as any)?.containerHandlingCompany ?? "",
+    roadServiceCost: (trip.additionalCosts as any)?.roadServiceCost ?? 0,
+    roadServiceCompany: (trip.additionalCosts as any)?.roadServiceCompany ?? "",
+    roadServiceDescription: (trip.additionalCosts as any)?.roadServiceDescription ?? "",
   };
 }
 
 export function ExtraChargesTab({ trip, onUpdate }: ExtraChargesTabProps) {
-  const [form, setForm] = useState(buildInitialState(trip));
+  const { toast } = useToast();
+  const { mutateAsync: saveExtraCosts, isPending: savingExtra } = useExtraCosts();
+  const { mutateAsync: saveAdditionalCosts, isPending: savingAdditional } = useAdditionalCosts();
 
-  // New line item state for "other extra costs"
+  const [form, setForm] = useState(buildInitialState(trip));
   const [newLabel, setNewLabel] = useState("");
   const [newAmount, setNewAmount] = useState("");
 
@@ -67,11 +67,63 @@ export function ExtraChargesTab({ trip, onUpdate }: ExtraChargesTabProps) {
   const customerTotal =
     (form.detentionCharges || 0) +
     form.otherExtraCosts.reduce((s: number, e: any) => s + Number(e.amount || 0), 0);
-
-  const operationalTotal =
-    (form.localFreightFee || 0) + (form.roadServiceCost || 0);
-
+  const operationalTotal = (form.localFreightFee || 0) + (form.roadServiceCost || 0);
   const grandTotal = customerTotal + operationalTotal;
+
+  const isPending = savingExtra || savingAdditional;
+
+  const handleSaveAll = async () => {
+    try {
+      // ── M8: Customer Extra Costs ──
+      // Build per-container payload: apply detention/other totals at trip level
+      // since the UI merges all containers into a single detention figure.
+      const tripContainers = (trip.containers as any[]) ?? [];
+      const containerPayload = tripContainers.length
+        ? tripContainers.map((_: any, containerIndex: number) => ({
+            containerIndex,
+            detentionCharges: 0,        // per-container breakdown not collected in this UI
+            deadFreight: 0,
+            otherExtraCosts: 0,
+          }))
+        : [];
+
+      await saveExtraCosts({
+        id: trip.id,
+        payload: {
+          containers: containerPayload,
+          tripLevelDetentionCharges: form.detentionCharges || 0,
+          tripLevelDeadFreight: 0,
+          tripLevelOtherExtraCosts: form.otherExtraCosts.reduce(
+            (s: number, e: any) => s + Number(e.amount || 0),
+            0
+          ),
+        },
+      });
+
+      // ── M10: Operational Additional Costs ──
+      await saveAdditionalCosts({
+        id: trip.id,
+        payload: {
+          localFreightFee: form.localFreightFee || 0,
+          localFreightLocation: form.localFreightLocation || "",
+          localCarrierName: form.localCarrierName || "",
+          containerHandlingFee: 0,       // containerHandlingCompany is name-only in this form
+          roadServiceCost: form.roadServiceCost || 0,
+          roadServiceCompanyName: form.roadServiceCompany || "",
+          roadServiceDescription: form.roadServiceDescription || "",
+        },
+      });
+
+      onUpdate(form);
+      toast({ title: "Extra charges saved ✓" });
+    } catch (err: any) {
+      toast({
+        title: "Failed to save charges",
+        description: err?.response?.data?.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -126,7 +178,6 @@ export function ExtraChargesTab({ trip, onUpdate }: ExtraChargesTabProps) {
             ))}
           </div>
 
-          {/* Add new line item */}
           <div className="flex gap-2 mt-2">
             <Input
               placeholder="Description (e.g. Extra unloading labor)"
@@ -147,7 +198,6 @@ export function ExtraChargesTab({ trip, onUpdate }: ExtraChargesTabProps) {
           </div>
         </div>
 
-        {/* Section 1 subtotal */}
         <div className="mt-4 flex justify-between items-center bg-emerald-50 border border-emerald-200 rounded-xl px-5 py-3">
           <p className="text-sm font-semibold text-emerald-700">Total Customer Extra Charges</p>
           <p className="text-lg font-bold text-emerald-700">${customerTotal.toLocaleString()} MXN</p>
@@ -216,7 +266,6 @@ export function ExtraChargesTab({ trip, onUpdate }: ExtraChargesTabProps) {
           </Field>
         </FormGrid>
 
-        {/* Section 2 subtotal */}
         <div className="mt-4 flex justify-between items-center bg-amber-50 border border-amber-200 rounded-xl px-5 py-3">
           <p className="text-sm font-semibold text-amber-700">Total Operational Extra Costs</p>
           <p className="text-lg font-bold text-amber-700">${operationalTotal.toLocaleString()} MXN</p>
@@ -232,9 +281,12 @@ export function ExtraChargesTab({ trip, onUpdate }: ExtraChargesTabProps) {
         <p className="text-2xl font-bold text-foreground">${grandTotal.toLocaleString()} MXN</p>
       </div>
 
-      {/* Save */}
+      {/* Save — single button fires both API calls */}
       <div className="flex justify-end">
-        <Button onClick={() => onUpdate(form)}>Save All Extra Charges</Button>
+        <Button onClick={handleSaveAll} disabled={isPending} className="gap-2">
+          {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          Save All Extra Charges
+        </Button>
       </div>
     </div>
   );

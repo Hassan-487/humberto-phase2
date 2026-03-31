@@ -1,226 +1,297 @@
-// import { Badge } from "@/components/ui/badge";
-// import { Label } from "@/components/ui/label";
-// import { Building2, Phone, Truck, FileText } from "lucide-react";
 
-// export function CompanyProfileSheet({ company }: any) {
-//   if (!company) return null;
 
-//   const docs = company.CompanyDocuments || {};
-
-//   return (
-//     <div className="p-6 space-y-8">
-//       <div className="flex items-center gap-4 p-4 bg-muted/30 border rounded-2xl">
-//         <div className="h-16 w-16 bg-primary/10 rounded-xl flex items-center justify-center">
-//           <Building2 className="h-8 w-8 text-primary" />
-//         </div>
-
-//         <div>
-//           <h3 className="text-lg font-bold">{company.legalName}</h3>
-//           <p className="text-xs text-muted-foreground">{company.rfc}</p>
-
-//           <Badge variant="outline" className="mt-2 capitalize">
-//             {company.status}
-//           </Badge>
-//         </div>
-//       </div>
-
-//       <section className="space-y-3">
-//         <Label className="uppercase text-[10px] font-bold">Company Info</Label>
-
-//         <Info label="Contact" value={company.whatsappNumber} />
-//         <Info label="Address" value={company.Address} />
-//       </section>
-
-//       <section className="space-y-3 pt-4 border-t">
-//         <Label className="uppercase text-[10px] font-bold">Fleet</Label>
-
-//         <Info label="Total Trucks" value={company.totalTrucks} />
-//       </section>
-
-//       <section className="space-y-3 pt-4 border-t">
-//         <Label className="uppercase text-[10px] font-bold">Documents</Label>
-
-//         {docs.rfcUrl && <DocLink label="RFC" url={docs.rfcUrl} />}
-//         {docs.specialPermitUrl && <DocLink label="Permit" url={docs.specialPermitUrl} />}
-//         {docs.insurancePolicyUrl && <DocLink label="Insurance" url={docs.insurancePolicyUrl} />}
-//       </section>
-//     </div>
-//   );
-// }
-// function Info({ label, value }: any) {
-//   return (
-//     <div className="p-3 bg-card border rounded-xl">
-//       <p className="text-[10px] uppercase text-muted-foreground font-bold">
-//         {label}
-//       </p>
-//       <p className="text-sm font-semibold">{value || "—"}</p>
-//     </div>
-//   );
-// }
-
-// function DocLink({ label, url }: any) {
-//   return (
-//     <a
-//       href={url}
-//       target="_blank"
-//       rel="noopener noreferrer"
-//       className="text-sm font-semibold text-primary underline"
-//     >
-//       📄 {label}
-//     </a>
-//   );
-// }
 
 import { useTranslation } from "react-i18next";
-import { 
-  Building2, 
-  MapPin, 
-  Phone, 
-  Truck, 
-  FileText, 
-  ShieldCheck, 
-  Info as InfoIcon,
-  ExternalLink
+import {
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
+  Truck,
+  FileText,
+  ShieldCheck,
+  ExternalLink,
+  Pencil,
+  Trash2,
+  DollarSign,
+  Hash,
+  User,
+  CalendarDays,
+  StickyNote,
+  Activity,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 interface CompanyProfileSheetProps {
   company: any;
   getStatusBadgeClass?: (status: string) => string;
+  onEdit?: (company: any) => void;
+  onDelete?: (id: string) => void;
 }
 
-export function CompanyProfileSheet({ 
-  company, 
-  getStatusBadgeClass 
+export function CompanyProfileSheet({
+  company,
+  getStatusBadgeClass,
+  onEdit,
+  onDelete,
 }: CompanyProfileSheetProps) {
   const { t } = useTranslation();
 
   if (!company) return null;
 
-  const docs = company.CompanyDocuments || {};
+  const docs = company?.documents || company?.CompanyDocuments || {};
+
+  const statusClass =
+    company.status === "active"
+      ? "bg-emerald-500/10 text-emerald-600 border-emerald-200"
+      : company.status === "suspended"
+      ? "bg-amber-500/10 text-amber-600 border-amber-200"
+      : "bg-red-500/10 text-red-600 border-red-200";
+
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return "—";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const formatCurrency = (val?: number) => {
+    if (val == null) return "—";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "MXN",
+      maximumFractionDigits: 0,
+    }).format(val);
+  };
 
   return (
-    /* SCROLLABLE WRAPPER 
-       'h-full' ensures it takes up the sheet height, 
-       'overflow-y-auto' enables scrolling,
-       'scrollbar-none' hides the bar if you prefer the clean look of your sample
-    */
     <div className="h-full flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground/20">
-      <div className="p-6 space-y-8 pb-12"> {/* Added bottom padding for better scroll ending */}
-        
-        {/* PROFILE HEADER */}
-        <div className="flex items-center gap-4 p-4 rounded-2xl bg-muted/30 border shadow-sm">
-          <div className="h-20 w-20 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center border-2 border-primary/20">
-            <Building2 className="h-10 w-10 text-primary" />
+      <div className="p-6 space-y-6 pb-20">
+
+        {/* ── HEADER CARD ── */}
+        <div className="flex items-start gap-4 p-5 rounded-2xl bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border border-primary/10 shadow-sm">
+          <div className="h-16 w-16 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+            <Building2 className="h-8 w-8 text-primary" />
           </div>
 
-          <div className="space-y-1 overflow-hidden">
-            <h3 className="text-lg font-black text-foreground leading-tight truncate">
+          <div className="space-y-1.5 overflow-hidden flex-1 min-w-0">
+            <h3 className="text-base font-black truncate leading-tight">
               {company.legalName}
             </h3>
-            <p className="text-xs font-mono text-muted-foreground">
-              {company.rfc}
+
+            <p className="text-[11px] font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded inline-block">
+              RFC: {company.rfc || "—"}
             </p>
-            <Badge
-              variant="outline"
-              className={`mt-1 capitalize ${
-                getStatusBadgeClass ? getStatusBadgeClass(company.status) : ""
-              }`}
-            >
-              {company.status?.replace("_", " ")}
-            </Badge>
+
+            <div className="flex items-center gap-2 flex-wrap pt-0.5">
+              <Badge
+                variant="outline"
+                className={`capitalize text-[11px] ${
+                  getStatusBadgeClass
+                    ? getStatusBadgeClass(company.status)
+                    : statusClass
+                }`}
+              >
+                <Activity className="h-2.5 w-2.5 mr-1" />
+                {company.status?.replace("_", " ") || "active"}
+              </Badge>
+
+              <Badge
+                variant="outline"
+                className={`text-[11px] ${
+                  company.isActive
+                    ? "bg-blue-500/10 text-blue-600 border-blue-200"
+                    : "bg-gray-500/10 text-gray-500 border-gray-200"
+                }`}
+              >
+                {company.isActive ? (
+                  <CheckCircle2 className="h-2.5 w-2.5 mr-1" />
+                ) : (
+                  <XCircle className="h-2.5 w-2.5 mr-1" />
+                )}
+                {company.isActive ? "Active" : "Inactive"}
+              </Badge>
+            </div>
           </div>
         </div>
 
-        {/* COMPANY INFO SECTION */}
-        <section className="space-y-4">
-          <Label className="font-bold flex items-center gap-2 text-primary uppercase text-[10px] tracking-widest">
-            <InfoIcon className="h-4 w-4" /> {t('company.generalInfo')}
-          </Label>
+        {/* ── CONTACT INFO ── */}
+        <SectionBlock
+          icon={<User className="h-3.5 w-3.5" />}
+          title="Contact Information"
+        >
+          <InfoRow icon={<User className="h-3.5 w-3.5 text-muted-foreground" />} label="Contact Person" value={company.contactPersonName} />
+          <InfoRow icon={<Phone className="h-3.5 w-3.5 text-muted-foreground" />} label="WhatsApp" value={company.whatsappNumber} mono />
+          <InfoRow icon={<Mail className="h-3.5 w-3.5 text-muted-foreground" />} label="Email" value={company.contactEmail} />
+          <InfoRow icon={<MapPin className="h-3.5 w-3.5 text-muted-foreground" />} label="Address" value={company.Address} />
+        </SectionBlock>
 
-          <div className="grid grid-cols-1 gap-3">
-            <div className="p-3 bg-card border rounded-xl flex items-start gap-3 shadow-sm">
-              <Phone className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-[9px] uppercase font-bold text-muted-foreground">
-                  {t('company.contact')}
-                </p>
-                <p className="text-sm font-bold">{company.whatsappNumber || "—"}</p>
-              </div>
-            </div>
-
-            <div className="p-3 bg-card border rounded-xl flex items-start gap-3 shadow-sm">
-              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="text-[9px] uppercase font-bold text-muted-foreground">
-                  {t('company.address')}
-                </p>
-                <p className="text-sm font-semibold leading-relaxed">
-                  {company.Address || "—"}
-                </p>
-              </div>
-            </div>
+        {/* ── OPERATIONS ── */}
+        <SectionBlock
+          icon={<Truck className="h-3.5 w-3.5" />}
+          title="Operations"
+        >
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard
+              icon={<Truck className="h-4 w-4 text-blue-500" />}
+              label="Total Trucks"
+              value={company.totalTrucks != null ? String(company.totalTrucks) : "—"}
+              bg="bg-blue-50 dark:bg-blue-950/20"
+            />
+            <StatCard
+              icon={<DollarSign className="h-4 w-4 text-emerald-500" />}
+              label="Total Price"
+              value={formatCurrency(company.totalPrice)}
+              bg="bg-emerald-50 dark:bg-emerald-950/20"
+            />
           </div>
-        </section>
+        </SectionBlock>
 
-        {/* FLEET METRICS */}
-        <section className="space-y-4 pt-4 border-t">
-          <Label className="font-bold flex items-center gap-2 text-blue uppercase text-[10px] tracking-widest">
-            <Truck className="h-4 w-4" /> {t('company.fleetOverview')}
-          </Label>
+        {/* ── NOTES ── */}
+        {company.notes && (
+          <SectionBlock
+            icon={<StickyNote className="h-3.5 w-3.5" />}
+            title="Notes"
+          >
+            <p className="text-sm text-muted-foreground bg-muted/30 rounded-xl p-3 border border-dashed leading-relaxed">
+              {company.notes}
+            </p>
+          </SectionBlock>
+        )}
 
-          <div className="p-4 bg-primary/5 border border-primary/10 rounded-xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] text-muted-foreground font-bold uppercase">
-                {t('company.totalTrucks')}
-              </p>
-              <p className="text-2xl font-black text-primary">
-                {company.totalTrucks || 0}
-              </p>
-            </div>
-            <Truck className="h-8 w-8 text-primary/20" />
-          </div>
-        </section>
-
-        {/* DOCUMENTS SECTION */}
-        <section className="space-y-4 pt-4 border-t">
-          <Label className="font-bold flex items-center gap-2 text-muted-foreground uppercase text-[10px] tracking-widest">
-            <ShieldCheck className="h-4 w-4" /> {t('company.legalDocuments')}
-          </Label>
-
+        {/* ── DOCUMENTS ── */}
+        <SectionBlock
+          icon={<ShieldCheck className="h-3.5 w-3.5" />}
+          title="Legal Documents"
+        >
           <div className="grid grid-cols-1 gap-2">
-            {docs.rfcUrl && <DocLink label="RFC (Tax ID)" url={docs.rfcUrl} />}
-            {docs.specialPermitUrl && <DocLink label="Special Permit" url={docs.specialPermitUrl} />}
-            {docs.insurancePolicyUrl && <DocLink label="Insurance Policy" url={docs.insurancePolicyUrl} />}
-            
-            {!docs.rfcUrl && !docs.specialPermitUrl && !docs.insurancePolicyUrl && (
-               <div className="p-4 border border-dashed rounded-xl text-center">
-                 <p className="text-xs text-muted-foreground italic">No documents available</p>
-               </div>
+            {docs?.rfcUrl && (
+              <DocLink label="RFC (Tax ID)" url={docs.rfcUrl} uploadedAt={docs.rfcUploadedAt} />
+            )}
+            {docs?.specialPermitUrl && (
+              <DocLink label="Special Permit" url={docs.specialPermitUrl} uploadedAt={docs.specialPermitUploadedAt} />
+            )}
+            {docs?.insurancePolicyUrl && (
+              <DocLink label="Insurance Policy" url={docs.insurancePolicyUrl} uploadedAt={docs.insurancePolicyUploadedAt} />
+            )}
+            {!docs?.rfcUrl && !docs?.specialPermitUrl && !docs?.insurancePolicyUrl && (
+              <div className="p-4 border border-dashed rounded-xl text-center">
+                <p className="text-xs text-muted-foreground italic">No documents available</p>
+              </div>
             )}
           </div>
-        </section>
+        </SectionBlock>
+
+        {/* ── METADATA ── */}
+        <SectionBlock
+          icon={<CalendarDays className="h-3.5 w-3.5" />}
+          title="Record Info"
+        >
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <MetaItem label="Created" value={formatDate(company.createdAt)} />
+            <MetaItem label="Updated" value={formatDate(company.updatedAt)} />
+            <MetaItem label="Company ID" value={company._id?.slice(-8)} mono />
+          </div>
+        </SectionBlock>
+
+        {/* ── ACTIONS ── */}
+        <div className="pt-2 flex gap-3">
+          <button
+            onClick={() => onEdit?.(company)}
+            className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground py-2.5 rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit Company
+          </button>
+
+          <button
+            onClick={() => onDelete?.(company._id)}
+            className="flex-1 flex items-center justify-center gap-2 bg-red-500 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-red-600 transition-colors"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-function DocLink({ label, url }: { label: string; url: string }) {
+/* ── SUB-COMPONENTS ── */
+
+function SectionBlock({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+        {icon} {title}
+      </div>
+      <div className="space-y-1.5">{children}</div>
+    </section>
+  );
+}
+
+function InfoRow({ icon, label, value, mono }: { icon: React.ReactNode; label: string; value?: string; mono?: boolean }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-2.5 p-2.5 rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
+      <span className="mt-0.5 shrink-0">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] text-muted-foreground uppercase font-medium">{label}</p>
+        <p className={`text-sm font-semibold truncate ${mono ? "font-mono" : ""}`}>{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ icon, label, value, bg }: { icon: React.ReactNode; label: string; value: string; bg: string }) {
+  return (
+    <div className={`${bg} rounded-xl p-3 border flex flex-col gap-1`}>
+      <div className="flex items-center gap-1.5">{icon}<span className="text-[10px] text-muted-foreground uppercase font-medium">{label}</span></div>
+      <p className="text-base font-black">{value}</p>
+    </div>
+  );
+}
+
+function MetaItem({ label, value, mono }: { label: string; value?: string; mono?: boolean }) {
+  return (
+    <div className="bg-muted/20 rounded-lg p-2.5">
+      <p className="text-[10px] text-muted-foreground uppercase font-medium">{label}</p>
+      <p className={`text-xs font-semibold mt-0.5 ${mono ? "font-mono" : ""}`}>{value || "—"}</p>
+    </div>
+  );
+}
+
+function DocLink({ label, url, uploadedAt }: { label: string; url: string; uploadedAt?: string }) {
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return null;
+    return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 p-3 rounded-xl border bg-card hover:bg-accent transition-all group active:scale-[0.98]"
+      className="flex items-center gap-3 p-3 rounded-xl border bg-card hover:bg-accent transition-all group"
     >
-      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
         <FileText className="h-4 w-4 text-primary" />
       </div>
-      <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
-        {label}
-      </span>
-      <ExternalLink className="ml-auto h-3 w-3 text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity" />
+
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold group-hover:text-primary transition-colors">{label}</p>
+        {formatDate(uploadedAt) && (
+          <p className="text-[10px] text-muted-foreground">Uploaded {formatDate(uploadedAt)}</p>
+        )}
+      </div>
+
+      <ExternalLink className="h-3.5 w-3.5 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all shrink-0" />
     </a>
   );
 }

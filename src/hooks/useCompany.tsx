@@ -1,3 +1,5 @@
+
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { companyService, Company } from "@/services/company.serivce";
 
@@ -9,7 +11,7 @@ export const companyKeys = {
   detail: (id: string) => [...companyKeys.all, "detail", id] as const,
 };
 
-/* ================= GET ================= */
+/* ================= HOOK ================= */
 
 export function useCompanies() {
   const qc = useQueryClient();
@@ -18,7 +20,6 @@ export function useCompanies() {
     queryKey: companyKeys.list(),
     queryFn: companyService.getCompanies,
     staleTime: 2 * 60 * 1000,
-
     retry: false,
     refetchOnWindowFocus: false,
   });
@@ -57,9 +58,15 @@ export function useCompanies() {
     },
   });
 
+  /* ================= UPLOAD ================= */
+
   const uploadMutation = useMutation({
-  mutationFn: companyService.uploadCompanyDocuments,
-});
+    mutationFn: companyService.uploadCompanyDocuments,
+    onError: (err) => {
+      console.error("UPLOAD ERROR:", err);
+    },
+  });
+
   return {
     companies: query.data ?? [],
     loading: query.isLoading,
@@ -69,5 +76,4 @@ export function useCompanies() {
     deleteCompany: deleteMutation.mutateAsync,
     uploadCompanyDocuments: uploadMutation.mutateAsync,
   };
-  
 }

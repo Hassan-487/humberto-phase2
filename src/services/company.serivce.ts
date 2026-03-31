@@ -1,3 +1,6 @@
+
+
+
 import apiClient from "@/services/apiClient";
 import { COMPANY_API } from "@/api/company.api";
 
@@ -5,8 +8,11 @@ import { COMPANY_API } from "@/api/company.api";
 
 export interface CompanyDocuments {
   rfcUrl?: string;
+  rfcUploadedAt?: string;
   specialPermitUrl?: string;
+  specialPermitUploadedAt?: string;
   insurancePolicyUrl?: string;
+  insurancePolicyUploadedAt?: string;
 }
 
 export interface Company {
@@ -26,46 +32,76 @@ export interface Company {
   isActive?: boolean;
   notes?: string;
 
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+
+  // Raw API shape
   CompanyDocuments?: CompanyDocuments;
+
+  // Normalized (set by service layer)
+  documents?: CompanyDocuments;
+}
+
+/* ================= NORMALIZE HELPER ================= */
+
+function normalizeCompany(c: any): Company {
+  return {
+    ...c,
+    // Always expose docs under `documents` regardless of raw key
+    documents: c.CompanyDocuments || c.documents || {},
+  };
 }
 
 /* ================= SERVICE ================= */
 
 export const companyService = {
+
   /* 🔹 GET ALL */
   async getCompanies(): Promise<Company[]> {
     const res = await apiClient.get(COMPANY_API.LIST);
 
-    // based on your response: :contentReference[oaicite:0]{index=0}
-    if (Array.isArray(res.data?.data)) return res.data.data;
-    if (res.data?.data?.companies) return res.data.data.companies;
+    const data = Array.isArray(res.data?.data)
+      ? res.data.data
+      : res.data?.data?.companies || [];
 
-    return [];
+    return data.map(normalizeCompany);
+  },
+
+  /* 🔹 GET ONE */
+  async getCompany(id: string): Promise<Company> {
+    const res = await apiClient.get(COMPANY_API.DETAILS(id));
+    return normalizeCompany(res.data?.data || res.data);
   },
 
   /* 🔹 CREATE */
   async createCompany(payload: any): Promise<Company> {
-    const formattedPayload = {
+    const body = {
       legalName: payload.legalName,
       rfc: payload.rfc,
       Address: payload.Address,
-
       contactPersonName: payload.contactPersonName,
       whatsappNumber: payload.whatsappNumber,
       contactEmail: payload.contactEmail,
-
-      status: payload.status,
-      totalTrucks: Number(payload.totalTrucks),
-      totalPrice: Number(payload.totalPrice),
+      status: payload.status || "active",
+      totalTrucks: Number(payload.totalTrucks || 0),
+      totalPrice: Number(payload.totalPrice || 0),
       notes: payload.notes,
 
-      rfcUrl: payload.documents?.rfcUrl,
-      specialPermitUrl: payload.documents?.permitUrl,
-      insurancePolicyUrl: payload.documents?.insuranceUrl,
+      // API expects these at root level for create
+      rfcUrl: payload.documents?.rfcUrl || undefined,
+      specialPermitUrl: payload.documents?.permitUrl || undefined,
+      insurancePolicyUrl: payload.documents?.insuranceUrl || undefined,
     };
 
-    const res = await apiClient.post(COMPANY_API.CREATE, formattedPayload);
-    return res.data.data;
+    const res = await apiClient.post(COMPANY_API.CREATE, body);
+
+    // API returns array in data
+    const created = Array.isArray(res.data?.data)
+      ? res.data.data[0]
+      : res.data?.data;
+
+    return normalizeCompany(created);
   },
 
   /* 🔹 UPDATE */
@@ -73,22 +109,30 @@ export const companyService = {
     id: string,
     payload: Partial<Company> & any
   ): Promise<Company> {
-    const formattedPayload = {
-      ...payload,
+    const body: any = {
+      legalName: payload.legalName,
+      rfc: payload.rfc,
+      Address: payload.Address,
+      contactPersonName: payload.contactPersonName,
+      whatsappNumber: payload.whatsappNumber,
+      contactEmail: payload.contactEmail,
+      status: payload.status,
+      totalTrucks: Number(payload.totalTrucks || 0),
+      totalPrice: Number(payload.totalPrice || 0),
+      notes: payload.notes,
+      isActive: payload.isActive,
 
-      rfcUrl: payload.documents?.rfcUrl || payload.rfcUrl,
-      specialPermitUrl:
-        payload.documents?.permitUrl || payload.specialPermitUrl,
-      insurancePolicyUrl:
-        payload.documents?.insuranceUrl || payload.insurancePolicyUrl,
+      // API expects these at root for PATCH
+      rfcUrl: payload.documents?.rfcUrl || undefined,
+      specialPermitUrl: payload.documents?.permitUrl || undefined,
+      insurancePolicyUrl: payload.documents?.insuranceUrl || undefined,
     };
 
-    const res = await apiClient.patch(
-      COMPANY_API.UPDATE(id),
-      formattedPayload
-    );
+    // Strip undefined keys
+    Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
 
-    return res.data.data;
+    const res = await apiClient.patch(COMPANY_API.UPDATE(id), body);
+    return normalizeCompany(res.data?.data || res.data);
   },
 
   /* 🔹 DELETE */
@@ -96,17 +140,16 @@ export const companyService = {
     await apiClient.delete(COMPANY_API.DELETE(id));
   },
 
-  async uploadCompanyDocuments(formData: FormData) {
-  const res = await apiClient.post(
-    COMPANY_API.UPLOAD_DOCUMENTS,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
+  /* 🔹 UPLOAD DOCUMENTS */
+  async uploadCompanyDocuments(formData: FormData): Promise<CompanyDocuments> {
+    const res = await apiClient.post(
+      COMPANY_API.UPLOAD_DOCUMENTS,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
 
-  return res.data.data;
-},
+    return res.data?.data || res.data;
+  },
 };
